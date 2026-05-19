@@ -14,7 +14,7 @@
     <p class="muted"><a th:href="@{/view/admin}">← 관리자 홈</a></p>
     <div class="panel">
         <h2>시간 추가</h2>
-        <p class="muted">API: <code>POST /times</code> — 본문 <code>{"startAt": "10:00"}</code></p>
+        <p class="muted">API: <code>POST /admin/times</code> — 본문 <code>{"startAt": "10:00"}</code></p>
         <div class="form-row">
             <label>시작 시각 (HH:mm)
                 <input type="time" id="startAt" step="60" required/>
@@ -98,7 +98,7 @@
     async function load() {
         err.style.display = 'none';
         try {
-            const res = await fetch('/times');
+            const res = await fetch('/admin/times');
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
             rows.innerHTML = '';
@@ -128,7 +128,7 @@
         }
         formMsg.style.display = 'none';
         try {
-            const res = await fetch('/times', {
+            const res = await fetch('/admin/times', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({startAt: v})
