@@ -13,41 +13,40 @@ import roomescape.exception.NotAcceptableReservationException;
 public class Reservation {
 
     private final EntityId id;
-    private final String name;
     private final LocalDate date;
     private final boolean canceled;
 
     private final ReservationTime time;
     private final EntityId themeId;
+    private final EntityId userId;
 
     private Reservation(
             EntityId id,
-            String name,
             LocalDate date,
             boolean canceled,
             ReservationTime time,
-            EntityId themeId
+            EntityId themeId,
+            EntityId userId
     ) {
         validateId(id);
-        validateName(name);
         validateDate(date);
         validateTime(time);
         validateTheme(themeId);
 
         this.id = id;
-        this.name = name;
         this.date = date;
         this.canceled = canceled;
         this.time = time;
         this.themeId = themeId;
+        this.userId = userId;
     }
 
     public static Reservation create(
             EntityId id,
-            String name,
             LocalDate date,
             ReservationTime time,
-            EntityId themeId
+            EntityId themeId,
+            EntityId userId
     ) {
         validateFuture(date, time);
 
@@ -55,29 +54,29 @@ public class Reservation {
 
         return new Reservation(
                 id,
-                name,
                 date,
                 defaultCanceled,
                 time,
-                themeId
+                themeId,
+                userId
         );
     }
 
     public static Reservation retrieve(
             EntityId id,
-            String name,
             LocalDate date,
             boolean canceled,
             ReservationTime time,
-            EntityId themeId
+            EntityId themeId,
+            EntityId userId
     ) {
         return new Reservation(
                 id,
-                name,
                 date,
                 canceled,
                 time,
-                themeId
+                themeId,
+                userId
         );
     }
 
@@ -91,11 +90,11 @@ public class Reservation {
 
         return new Reservation(
                 this.id,
-                this.name,
                 date,
                 this.canceled,
                 time,
-                this.themeId
+                this.themeId,
+                this.userId
         );
     }
 
@@ -104,11 +103,11 @@ public class Reservation {
 
         return new Reservation(
                 this.id,
-                this.name,
                 this.date,
                 canceled,
                 this.time,
-                this.themeId
+                this.themeId,
+                this.userId
         );
     }
 
@@ -126,6 +125,15 @@ public class Reservation {
             throw new InvalidDomainStateException(
                     ErrorCode.INVALID_RESERVATION,
                     "예약엔 시간이 존재해야 합니다."
+            );
+        }
+    }
+
+    private void validateName(String name) {
+        if (!StringUtils.hasText(name)) {
+            throw new InvalidDomainStateException(
+                    ErrorCode.INVALID_RESERVATION,
+                    "예약엔 이름이 존재해야 합니다."
             );
         }
     }
@@ -160,15 +168,6 @@ public class Reservation {
         }
     }
 
-    private void validateName(String name) {
-        if (!StringUtils.hasText(name)) {
-            throw new InvalidDomainStateException(
-                    ErrorCode.INVALID_RESERVATION,
-                    "예약엔 이름이 존재해야 합니다."
-            );
-        }
-    }
-
     private void validateTheme(EntityId themeId) {
         if (themeId == null) {
             throw new InvalidDomainStateException(
@@ -194,10 +193,6 @@ public class Reservation {
                     "취소된 예약은 수정할 수 없습니다."
             );
         }
-    }
-
-    public boolean hasDifferentName(String name) {
-        return !this.name.equals(name);
     }
 
     public boolean isCancelable() {

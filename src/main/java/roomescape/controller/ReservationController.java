@@ -42,23 +42,21 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservationDetailResponse>> findByName(
-            @RequestParam String name
+    public ResponseEntity<List<ReservationDetailResponse>> findByUserId(
+            @RequestParam UUID userId
     ) {
-        List<ReservationDetailResponse> responses = service.findAllIncludeDetail(name);
+        List<ReservationDetailResponse> responses = service.findAllIncludeDetail(EntityId.fromUuid(userId));
 
         return ResponseEntity.ok(responses);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ReservationSummaryResponse> updateDateTime(
-            @RequestParam String name,
             @PathVariable UUID id,
             @RequestBody ReservationUpdateRequest updateRequest
     ) {
         ReservationUpdateCommand updateCommand = mapper.mapToUpdateCommand(
                 EntityId.fromUuid(id),
-                name,
                 updateRequest
         );
         ReservationSummaryResponse response = service.update(updateCommand);
@@ -68,10 +66,9 @@ public class ReservationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ReservationSummaryResponse> cancel(
-            @RequestParam String name,
             @PathVariable UUID id
     ) {
-        ReservationSummaryResponse response = service.cancel(EntityId.fromUuid(id), name);
+        ReservationSummaryResponse response = service.cancel(EntityId.fromUuid(id));
 
         return ResponseEntity.ok(response);
     }

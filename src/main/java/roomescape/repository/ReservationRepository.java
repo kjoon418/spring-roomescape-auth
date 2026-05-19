@@ -30,27 +30,28 @@ public class ReservationRepository {
         this.jdbcTemplate = jdbcTemplate;
         this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("reservation")
-                .usingColumns("id", "name", "date", "canceled", "time_id", "theme_id");
+                .usingColumns("id", "date", "canceled", "time_id", "theme_id", "user_id");
     }
 
     public Reservation persist(Reservation reservation) {
         EntityId timeId = reservation.getTimeId();
         EntityId themeId = reservation.getThemeId();
+        EntityId userId = reservation.getUserId();
 
         simpleJdbcInsert.execute(Map.of(
                 "id", reservation.getId().getValueAsUuid(),
-                "name", reservation.getName(),
                 "date", reservation.getDate(),
                 "canceled", reservation.isCanceled(),
                 "time_id", timeId.getValueAsUuid(),
-                "theme_id", themeId.getValueAsUuid()
+                "theme_id", themeId.getValueAsUuid(),
+                "user_id", userId.getValueAsUuid()
         ));
 
         return reservation;
     }
 
     public List<Reservation> findAll() {
-        String findSql = "SELECT r.id, r.name, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id"
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id";
 
@@ -59,7 +60,7 @@ public class ReservationRepository {
 
     public Optional<Reservation> findById(EntityId reservationId) {
         try {
-            String findSql = "SELECT r.id, r.name, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id"
+            String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
                     + " FROM reservation r"
                     + " JOIN reservation_time rt ON r.time_id = rt.id"
                     + " WHERE r.id = ?";
@@ -76,21 +77,21 @@ public class ReservationRepository {
         }
     }
 
-    public List<Reservation> findByName(String name) {
-        String findSql = "SELECT r.id, r.name, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id"
+    public List<Reservation> findByUserId(EntityId userId) {
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id"
-                + " WHERE r.name = ?";
+                + " WHERE r.user_id = ?";
 
         return jdbcTemplate.query(
                 findSql,
                 reservationRowMapper(),
-                name
+                userId.getValueAsUuid()
         );
     }
 
     public List<Reservation> findBetweenDuration(Duration duration) {
-        String findSql = "SELECT r.id, r.name, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id"
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id"
                 + " WHERE r.date BETWEEN ? AND ?";
@@ -104,7 +105,7 @@ public class ReservationRepository {
     }
 
     public List<Reservation> findNotCanceledByDateAndThemeId(LocalDate date, EntityId themeId) {
-        String findSql = "SELECT r.id, r.name, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id"
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id"
                 + " WHERE r.date = ? AND r.theme_id = ? AND r.canceled = false";
@@ -225,11 +226,11 @@ public class ReservationRepository {
 
             return Reservation.retrieve(
                     readEntityId(resultSet, "id"),
-                    resultSet.getString("name"),
                     resultSet.getObject("date", LocalDate.class),
                     resultSet.getBoolean("canceled"),
                     time,
-                    readEntityId(resultSet, "theme_id")
+                    readEntityId(resultSet, "theme_id"),
+                    readEntityId(resultSet, "user_id")
             );
         };
     }

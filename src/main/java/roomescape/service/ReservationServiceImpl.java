@@ -46,10 +46,10 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
         ReservationTime time = findTimeById(command.timeId());
         Reservation reservation = Reservation.create(
                 reservationId,
-                command.name(),
                 command.date(),
                 time,
-                command.themeId()
+                command.themeId(),
+                command.userId()
         );
 
         Reservation persisted = reservationRepository.persist(reservation);
@@ -65,8 +65,8 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationDetailResponse> findAllIncludeDetail(String name) {
-        List<Reservation> reservations = reservationRepository.findByName(name);
+    public List<ReservationDetailResponse> findAllIncludeDetail(EntityId userId) {
+        List<Reservation> reservations = reservationRepository.findByUserId(userId);
 
         return mapToDetailResponses(reservations);
     }
@@ -76,7 +76,6 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
             ReservationUpdateCommand command
     ) {
         Reservation reservation = findReservationById(command.reservationId());
-        validateNameEquality(reservation, command.name());
 
         ReservationTime timeToUpdate = findTimeById(command.timeId());
         validateReservationNotDuplicate(command.date(), reservation.getThemeId(), timeToUpdate.id());
@@ -103,9 +102,8 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional
-    public ReservationSummaryResponse cancel(EntityId reservationId, String name) {
+    public ReservationSummaryResponse cancel(EntityId reservationId) {
         Reservation reservation = findReservationById(reservationId);
-        validateNameEquality(reservation, name);
 
         Reservation updatedReservation = reservationRepository.updateCanceled(reservation, true);
 
@@ -137,15 +135,6 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
                             + " 요청한 날짜: " + date
                             + ", 요청한 테마 ID: " + themeId
                             + ", 요청한 시간 ID: " + timeId
-            );
-        }
-    }
-
-    private void validateNameEquality(Reservation reservation, String name) {
-        if (reservation.hasDifferentName(name)) {
-            throw new NotAcceptableReservationException(
-                    ErrorCode.NOT_RESERVATION_OWNER,
-                    "본인의 예약만 삭제할 수 있습니다."
             );
         }
     }

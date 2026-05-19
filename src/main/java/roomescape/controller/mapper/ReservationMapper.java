@@ -14,21 +14,19 @@ public class ReservationMapper {
             ReservationCreateRequest request
     ) {
         return new ReservationCreateCommand(
-                request.name(),
                 request.date(),
                 EntityId.fromUuid(request.timeId()),
-                EntityId.fromUuid(request.themeId())
+                EntityId.fromUuid(request.themeId()),
+                EntityId.fromUuid(request.userId())
         );
     }
 
     public ReservationUpdateCommand mapToUpdateCommand(
             EntityId reservationId,
-            String name,
             ReservationUpdateRequest request
     ) {
         return new ReservationUpdateCommand(
                 reservationId,
-                name,
                 request.date(),
                 EntityId.fromUuid(request.timeId())
         );

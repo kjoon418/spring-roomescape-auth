@@ -21,7 +21,6 @@ public class ReservationResponseMapper {
     ) {
         return new ReservationSummaryResponse(
                 reservation.getId().getValueAsString(),
-                reservation.getName(),
                 reservation.getDate(),
                 reservation.isCanceled(),
                 reservation.getTimeId().getValueAsString(),
@@ -38,7 +37,6 @@ public class ReservationResponseMapper {
 
         return new ReservationDetailResponse(
                 reservation.getId().getValueAsString(),
-                reservation.getName(),
                 reservation.getDate(),
                 reservation.isCanceled(),
                 reservation.isCancelable(),
