@@ -21,6 +21,24 @@ public class UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    public Optional<User> findById(EntityId id) {
+        try {
+            String findSql = "SELECT id, login_id, password, name, role"
+                    + " FROM users"
+                    + " WHERE id = ?";
+
+            User user = jdbcTemplate.queryForObject(
+                    findSql,
+                    userRowMapper(),
+                    id.getValueAsUuid()
+            );
+
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+    }
+
     public Optional<User> findByLoginIdAndPassword(
             String loginId,
             String password

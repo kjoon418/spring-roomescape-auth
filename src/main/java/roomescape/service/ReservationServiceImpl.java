@@ -12,6 +12,7 @@ import roomescape.domain.EntityId;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.exception.DuplicateReservationException;
 import roomescape.exception.EntityNotFoundException;
 import roomescape.exception.ErrorCode;
@@ -19,6 +20,7 @@ import roomescape.exception.NotAcceptableReservationException;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
+import roomescape.repository.UserRepository;
 import roomescape.service.dto.AssembledReservation;
 import roomescape.service.dto.ReservationCreateCommand;
 import roomescape.service.dto.ReservationUpdateCommand;
@@ -32,6 +34,7 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     private final ReservationRepository reservationRepository;
     private final ReservationTimeRepository timeRepository;
     private final ThemeRepository themeRepository;
+    private final UserRepository userRepository;
 
     private final ReservationResponseMapper reservationResponseMapper;
 
@@ -120,8 +123,17 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     private AssembledReservation assembleReservation(Reservation reservation) {
         ReservationTime time = reservation.getTime();
         Theme theme = findThemeById(reservation.getThemeId());
+        User user = findUserById(reservation.getUserId());
 
-        return new AssembledReservation(reservation, time, theme);
+        return new AssembledReservation(reservation, time, theme, user);
+    }
+
+    private User findUserById(EntityId userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "유저를 조회할 수 없습니다. userId = " + userId
+                ));
     }
 
     private void validateReservationNotDuplicate(

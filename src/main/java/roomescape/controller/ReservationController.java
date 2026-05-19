@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.RequireAuth;
 import roomescape.auth.Role;
+import roomescape.auth.UserId;
 import roomescape.controller.dto.ReservationCreateRequest;
 import roomescape.controller.dto.ReservationDetailResponse;
 import roomescape.controller.dto.ReservationSummaryResponse;
@@ -46,9 +46,9 @@ public class ReservationController {
 
     @GetMapping
     public ResponseEntity<List<ReservationDetailResponse>> findByUserId(
-            @RequestParam UUID userId
+            @UserId EntityId userId
     ) {
-        List<ReservationDetailResponse> responses = service.findAllIncludeDetail(EntityId.fromUuid(userId));
+        List<ReservationDetailResponse> responses = service.findAllIncludeDetail(userId);
 
         return ResponseEntity.ok(responses);
     }

@@ -34,6 +34,7 @@ public class ReservationResponseMapper {
         Reservation reservation = assembledReservation.reservation();
         ReservationTimeResponse time = timeResponseMapper.map(assembledReservation.time());
         ThemeResponse theme = themeResponseMapper.map(assembledReservation.theme());
+        String userName = assembledReservation.user().name();
 
         return new ReservationDetailResponse(
                 reservation.getId().getValueAsString(),
@@ -41,7 +42,8 @@ public class ReservationResponseMapper {
                 reservation.isCanceled(),
                 reservation.isCancelable(),
                 time,
-                theme
+                theme,
+                userName
         );
     }
 }

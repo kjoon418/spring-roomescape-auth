@@ -1,12 +1,20 @@
 package roomescape.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import roomescape.auth.SessionManager;
+import roomescape.auth.UserSession;
 
 @Controller
 @RequestMapping("/view")
+@RequiredArgsConstructor
 public class WebViewController {
+
+    private final SessionManager sessionManager;
 
     @GetMapping({"", "/"})
     public String welcome() {
@@ -39,7 +47,11 @@ public class WebViewController {
     }
 
     @GetMapping("/user/reserve")
-    public String userReserve() {
+    public String userReserve(HttpServletRequest request, Model model) {
+        UserSession userInfo = sessionManager.getUserInfo(request);
+        if (userInfo != null) {
+            model.addAttribute("currentUserId", userInfo.userId());
+        }
         return "user/reserve";
     }
 
