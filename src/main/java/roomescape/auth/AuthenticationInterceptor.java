@@ -36,7 +36,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
 
     private boolean isNotRequireAuth(HandlerMethod method) {
-        return getRequireAuth(method) == null;
+        return getRequireAuth(method) == null
+                || method.getMethodAnnotation(NoRequireAuth.class) != null;
     }
 
     private RequireAuth getRequireAuth(HandlerMethod method) {

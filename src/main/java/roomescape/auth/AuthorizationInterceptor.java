@@ -45,7 +45,8 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         RequireAuth requireAuth = getRequireAuth(method);
 
         return requireAuth == null
-                || requireAuth.roles().length == 0;
+                || requireAuth.roles().length == 0
+                || method.getMethodAnnotation(NoRequireAuth.class) != null;
     }
 
     private RequireAuth getRequireAuth(HandlerMethod method) {
