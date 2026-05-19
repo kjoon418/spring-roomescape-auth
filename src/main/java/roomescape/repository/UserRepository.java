@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import roomescape.auth.Role;
 import roomescape.domain.EntityId;
 import roomescape.domain.User;
 
@@ -25,7 +26,7 @@ public class UserRepository {
             String password
     ) {
         try {
-            String findSql = "SELECT id, login_id, password, name"
+            String findSql = "SELECT id, login_id, password, name, role"
                     + " FROM users"
                     + " WHERE login_id = ? AND password = ?";
 
@@ -47,7 +48,8 @@ public class UserRepository {
                 readEntityId(resultSet, "id"),
                 resultSet.getString("login_id"),
                 resultSet.getString("password"),
-                resultSet.getString("name")
+                resultSet.getString("name"),
+                Role.valueOf(resultSet.getString("role"))
         );
     }
 

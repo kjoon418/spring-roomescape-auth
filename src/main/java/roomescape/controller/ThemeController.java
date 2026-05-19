@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.auth.RequireAuth;
+import roomescape.auth.Role;
 import roomescape.controller.dto.ThemeCreateRequest;
 import roomescape.controller.dto.ThemeResponse;
 import roomescape.controller.mapper.ThemeMapper;
@@ -25,6 +27,7 @@ import roomescape.service.dto.ThemeCreateCommand;
 
 @RestController
 @RequestMapping("/themes")
+@RequireAuth(roles = {Role.MEMBER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ThemeController {
 

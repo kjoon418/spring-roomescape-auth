@@ -1,9 +1,12 @@
 package roomescape.domain;
 
+import roomescape.auth.Role;
+
 public record User(
         EntityId id,
         String loginId,
         String password,
-        String name
+        String name,
+        Role role
 ) {
 }

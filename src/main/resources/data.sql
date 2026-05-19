@@ -1,8 +1,8 @@
 -- 로컬 실행용 초기 데이터
-INSERT INTO users (id, login_id, password, name)
-VALUES ('dddddddd-dddd-dddd-dddd-dddddddddd01', 'brown', 'password123', '브라운'),
-       ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'gump', 'password456', '검프'),
-       ('dddddddd-dddd-dddd-dddd-dddddddddd03', 'jason', 'password789', '제이슨');
+INSERT INTO users (id, login_id, password, name, role)
+VALUES ('dddddddd-dddd-dddd-dddd-dddddddddd01', 'brown', 'password123', '브라운', 'ADMIN'),
+       ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'gump', 'password456', '검프', 'MEMBER'),
+       ('dddddddd-dddd-dddd-dddd-dddddddddd03', 'jason', 'password789', '제이슨', 'MEMBER');
 
 INSERT INTO reservation_time (id, start_at)
 VALUES ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01', '10:00:00'),

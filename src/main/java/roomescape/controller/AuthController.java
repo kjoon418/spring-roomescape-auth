@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.SessionManager;
 import roomescape.controller.dto.LoginRequestDto;
+import roomescape.controller.dto.UserResponse;
 import roomescape.domain.EntityId;
 import roomescape.service.UserService;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
@@ -25,8 +26,8 @@ public class AuthController {
             @RequestBody LoginRequestDto requestDto,
             HttpServletRequest servletRequest
     ) {
-        EntityId userId = userService.login(requestDto.loginId(), requestDto.password());
-        sessionManager.saveUserInfo(userId, servletRequest);
+        UserResponse user = userService.login(requestDto.loginId(), requestDto.password());
+        sessionManager.saveUserInfo(user.id(), user.role(), servletRequest);
 
         return ResponseEntity.ok().build();
     }

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.auth.RequireAuth;
+import roomescape.auth.Role;
 import roomescape.controller.dto.ReservationTimeCreateRequest;
 import roomescape.controller.dto.ReservationTimeResponse;
 import roomescape.controller.mapper.ReservationTimeMapper;
@@ -22,6 +24,7 @@ import roomescape.service.dto.ReservationTimeCreateCommand;
 
 @RestController
 @RequestMapping("/times")
+@RequireAuth(roles = {Role.MEMBER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ReservationTimeController {
 

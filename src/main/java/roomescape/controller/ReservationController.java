@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.auth.RequireAuth;
+import roomescape.auth.Role;
 import roomescape.controller.dto.ReservationCreateRequest;
 import roomescape.controller.dto.ReservationDetailResponse;
 import roomescape.controller.dto.ReservationSummaryResponse;
@@ -25,6 +27,7 @@ import roomescape.service.dto.ReservationUpdateCommand;
 
 @RestController
 @RequestMapping("/reservations")
+@RequireAuth(roles = {Role.MEMBER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ReservationController {
 

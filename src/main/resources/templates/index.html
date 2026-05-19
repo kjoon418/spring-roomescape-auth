@@ -12,6 +12,19 @@
 <main>
     <h1>방탈출 예약 서비스</h1>
     <p class="lead">관리자는 시간·테마·예약을 관리하고, 사용자는 날짜와 테마를 골라 직접 예약할 수 있습니다.</p>
+    <div class="panel">
+        <h2>로그인</h2>
+        <div class="form-row">
+            <label>아이디
+                <input type="text" id="loginId" placeholder="아이디"/>
+            </label>
+            <label>비밀번호
+                <input type="password" id="password" placeholder="비밀번호"/>
+            </label>
+            <button type="button" class="btn btn-primary" id="loginBtn">로그인</button>
+        </div>
+        <p id="loginStatus" class="status-msg" style="display:none;"></p>
+    </div>
     <div class="card-grid">
         <article class="card">
             <h2>관리자 페이지</h2>
@@ -25,5 +38,53 @@
         </article>
     </div>
 </main>
+<div th:replace="~{fragments/site :: errorModal}"></div>
+<script th:src="@{/js/common.js}"></script>
+<script>
+    const ERROR_MESSAGES = {
+        INVALID_INPUT: '입력값이 올바르지 않습니다.',
+        UNAUTHORIZED: '아이디 또는 비밀번호가 올바르지 않습니다.',
+        INTERNAL_SERVER_ERROR: '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+    };
+
+    async function readApiError(res) {
+        const text = await res.text();
+        if (!text) return '요청 실패 (' + res.status + ')';
+        try {
+            const j = JSON.parse(text);
+            if (j && j.errorCode && ERROR_MESSAGES[j.errorCode]) return ERROR_MESSAGES[j.errorCode];
+            if (j && j.message) return j.message;
+        } catch (_) {}
+        return text || '요청 실패 (' + res.status + ')';
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+        const loginId = document.getElementById('loginId').value.trim();
+        const password = document.getElementById('password').value;
+        const status = document.getElementById('loginStatus');
+        status.style.display = 'none';
+
+        if (!loginId || !password) {
+            showErrorModal('아이디와 비밀번호를 입력해 주세요.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({loginId, password})
+            });
+            if (!res.ok) throw new Error(await readApiError(res));
+            location.href = '/view/user';
+        } catch (e) {
+            showErrorModal(e.message);
+        }
+    });
+
+    document.getElementById('password').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+</script>
 </body>
 </html>

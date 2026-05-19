@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import roomescape.auth.RequireAuth;
+import roomescape.auth.Role;
 import roomescape.controller.dto.ReservationDetailResponse;
 import roomescape.domain.EntityId;
 import roomescape.service.AdminReservationService;
 
 @RestController
 @RequestMapping("/admin/reservations")
+@RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
 public class AdminReservationController {
 

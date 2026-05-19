@@ -3,6 +3,7 @@ package roomescape.exception;
 public enum ErrorCode {
     INTERNAL_SERVER_ERROR,
     BAD_REQUEST,
+    AUTH_FAILED,
     DATABASE_ERROR,
     DATA_INTEGRITY_VIOLATION,
 

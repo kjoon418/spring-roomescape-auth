@@ -12,9 +12,23 @@ public class SessionManager {
 
     public void saveUserInfo(
             EntityId userId,
+            Role role,
             HttpServletRequest request
     ) {
         HttpSession session = request.getSession(true);
-        session.setAttribute(USER_INFO_KEY, userId);
+        UserSession userSession = new UserSession(userId.getValueAsString(), role.name());
+
+        session.setAttribute(USER_INFO_KEY, userSession);
+    }
+
+    public UserSession getUserInfo(
+            HttpServletRequest request
+    ) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+
+        return (UserSession) session.getAttribute(USER_INFO_KEY);
     }
 }

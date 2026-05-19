@@ -1,6 +1,7 @@
 package roomescape.controller.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import javax.security.sasl.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import roomescape.auth.AuthorizationException;
 import roomescape.exception.CodeException;
 import roomescape.exception.DuplicateReservationException;
 import roomescape.exception.EntityNotFoundException;
@@ -42,10 +44,28 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(AuthenticationException exception) {
+        log.warn("[UNAUTHORIZED]", exception);
+        ErrorResponse response = new ErrorResponse(exception.getMessage(), ErrorCode.AUTH_FAILED);
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
+
     @ExceptionHandler(NotAcceptableReservationException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(NotAcceptableReservationException exception) {
+    public ResponseEntity<ErrorResponse> handleForbiddenWithCode(NotAcceptableReservationException exception) {
         log.warn("[Forbidden]", exception);
         ErrorResponse response = new ErrorResponse(exception.getMessage(), exception.getErrorCode());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(response);
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(AuthenticationException exception) {
+        log.warn("[Forbidden]", exception);
+        ErrorResponse response = new ErrorResponse(exception.getMessage(), ErrorCode.AUTH_FAILED);
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(response);
