@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(AuthenticationException exception) {
+    public ResponseEntity<ErrorResponse> handleForbidden(AuthorizationException exception) {
         log.warn("[Forbidden]", exception);
         ErrorResponse response = new ErrorResponse(exception.getMessage(), ErrorCode.AUTH_FAILED);
 
