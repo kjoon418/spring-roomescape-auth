@@ -3,7 +3,6 @@ package roomescape.auth;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import javax.security.sasl.AuthenticationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull Object handler
-    ) throws IOException {
+    ) {
         if (!(handler instanceof HandlerMethod method)) {
             return true;
         }
