@@ -36,9 +36,10 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationSummaryResponse> create(
+            @UserId EntityId userId,
             @RequestBody ReservationCreateRequest createRequest
     ) {
-        ReservationCreateCommand createCommand = mapper.mapToCreateCommand(createRequest);
+        ReservationCreateCommand createCommand = mapper.mapToCreateCommand(createRequest, userId);
         ReservationSummaryResponse response = service.create(createCommand);
 
         return ResponseEntity.ok(response);

@@ -33,7 +33,6 @@
     </div>
     <div class="panel">
         <h2>4. 예약 요청</h2>
-        <input type="hidden" id="currentUserId" th:value="${currentUserId}"/>
         <div class="form-row">
             <button type="button" class="btn btn-primary" id="submitBtn" disabled>예약 요청</button>
         </div>
@@ -56,7 +55,6 @@
     const themeHint = document.getElementById('themeHint');
     const timeChips = document.getElementById('timeChips');
     const timeHint = document.getElementById('timeHint');
-    const currentUserId = document.getElementById('currentUserId');
     const submitBtn = document.getElementById('submitBtn');
     const status = document.getElementById('status');
 
@@ -207,8 +205,7 @@
         const body = {
             date: gameDate.value,
             timeId: selectedTimeId,
-            themeId: selectedThemeId,
-            userId: currentUserId.value
+            themeId: selectedThemeId
         };
         try {
             const res = await fetch('/reservations', {
@@ -250,8 +247,7 @@
                 body: JSON.stringify({
                     date: '2099-01-01',
                     timeId: '00000000-0000-0000-0000-000000000000',
-                    themeId: '00000000-0000-0000-0000-000000000000',
-                    userId: currentUserId.value
+                    themeId: '00000000-0000-0000-0000-000000000000'
                 })
             });
             if (!res.ok) throw new Error(await readApiError(res));

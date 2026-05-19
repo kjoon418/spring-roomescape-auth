@@ -11,13 +11,14 @@ import roomescape.service.dto.ReservationUpdateCommand;
 public class ReservationMapper {
 
     public ReservationCreateCommand mapToCreateCommand(
-            ReservationCreateRequest request
+            ReservationCreateRequest request,
+            EntityId userId
     ) {
         return new ReservationCreateCommand(
                 request.date(),
                 EntityId.fromUuid(request.timeId()),
                 EntityId.fromUuid(request.themeId()),
-                EntityId.fromUuid(request.userId())
+                userId
         );
     }
 
