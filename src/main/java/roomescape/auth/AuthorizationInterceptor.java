@@ -2,7 +2,6 @@ package roomescape.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Arrays;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull Object handler
-    ) throws IOException {
+    ) {
         if (!(handler instanceof HandlerMethod method)) {
             return true;
         }
