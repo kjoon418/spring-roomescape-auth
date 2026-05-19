@@ -14,7 +14,7 @@
     <p class="muted"><a th:href="@{/view/admin}">← 관리자 홈</a></p>
     <div class="panel">
         <h2>테마 추가</h2>
-        <p class="muted">API: <code>POST /themes</code> — 본문 <code>{"name","description","imageUrl"}</code> (201 Created)</p>
+        <p class="muted">API: <code>POST /admin/themes</code> — 본문 <code>{"name","description","imageUrl"}</code> (201 Created)</p>
         <div class="form-row">
             <label>이름<input type="text" id="name" maxlength="255"/></label>
             <label>설명<input type="text" id="description" maxlength="255"/></label>
@@ -142,7 +142,7 @@
         }
         formMsg.style.display = 'none';
         try {
-            const res = await fetch('/themes', {
+            const res = await fetch('/admin/themes', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name, description, imageUrl})
@@ -162,7 +162,7 @@
         if (!confirm('이 테마를 삭제할까요?')) return;
         err.style.display = 'none';
         try {
-            const res = await fetch('/themes/' + id, {method: 'DELETE'});
+            const res = await fetch('/admin/themes/' + id, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             await load();
         } catch (e) {
@@ -177,7 +177,7 @@
         testErr.style.display = 'none';
         try {
             // 존재하지 않는 테마 ID로 삭제 시도 → THEME_NOT_FOUND
-            const res = await fetch('/themes/00000000-0000-0000-0000-000000000000', {method: 'DELETE'});
+            const res = await fetch('/admin/themes/00000000-0000-0000-0000-000000000000', {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             testErr.textContent = '성공 응답을 받았습니다.';
             testErr.className = 'status-msg ok';
