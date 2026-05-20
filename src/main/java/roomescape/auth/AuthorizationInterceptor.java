@@ -29,6 +29,10 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         }
 
         UserSession userInfo = sessionManager.getUserInfo(request);
+        if (userInfo == null) {
+            throw new AuthenticationException("인증 정보가 없습니다.");
+        }
+
         RequireAuth requireAuth = getRequireAuth(method);
         Role userRole = Role.valueOf(userInfo.role());
 
