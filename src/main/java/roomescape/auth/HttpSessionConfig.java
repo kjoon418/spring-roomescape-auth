@@ -34,13 +34,23 @@ public class HttpSessionConfig {
             @Override
             public void setSessionId(HttpServletRequest request, HttpServletResponse response, String sessionId) {
                 cookieResolver.setSessionId(request, response, sessionId);
-                headerResolver.setSessionId(request, response, sessionId);
+
+                if (isMobileRequest(request)) {
+                    headerResolver.setSessionId(request, response, sessionId);
+                }
             }
 
             @Override
             public void expireSession(HttpServletRequest request, HttpServletResponse response) {
                 cookieResolver.expireSession(request, response);
-                headerResolver.expireSession(request, response);
+
+                if (isMobileRequest(request)) {
+                    headerResolver.expireSession(request, response);
+                }
+            }
+
+            private boolean isMobileRequest(HttpServletRequest request) {
+                return "MOBILE".equalsIgnoreCase(request.getHeader("X-Client-Type"));
             }
         };
     }
