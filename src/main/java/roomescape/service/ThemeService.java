@@ -39,16 +39,8 @@ public class ThemeService {
 
     @Transactional
     public ThemeResponse create(
-            EntityId actorId,
             ThemeCreateCommand command
     ) {
-        User actor = findUserById(actorId);
-        if (actor.role() == Role.MANAGER) {
-            validateManageAuthority(actor, command.shopId());
-        } else if (actor.role() != Role.ADMIN) {
-            throw new AuthorizationException("테마 생성 권한이 없습니다.");
-        }
-
         EntityId id = EntityId.random();
         Theme theme = new Theme(
                 id,
@@ -93,34 +85,15 @@ public class ThemeService {
 
     @Transactional
     public void delete(
-            EntityId actorId,
             EntityId shopId,
             EntityId themeId
     ) {
-        User actor = findUserById(actorId);
         Theme theme = findThemeById(themeId);
-
-        if (actor.role() == Role.MANAGER) {
-            validateManageAuthority(actor, shopId);
-            validateThemeOwnership(shopId, theme);
-        } else if (actor.role() != Role.ADMIN) {
-            throw new AuthorizationException("테마 삭제 권한이 없습니다.");
-        }
-
+        validateThemeOwnership(shopId, theme);
         validateThemeNotUsed(themeId);
 
         boolean deleted = themeRepository.delete(themeId);
         validateDeleted(deleted, themeId);
-    }
-
-    private void validateManageAuthority(User manager, EntityId shopId) {
-        if (manager.role() != Role.MANAGER) {
-            throw new AuthorizationException("매니저가 아닙니다.");
-        }
-
-        if (!Objects.equals(manager.managingShopId(), shopId)) {
-            throw new AuthorizationException("해당 매장에 대한 관리 권한이 없습니다.");
-        }
     }
 
     private void validateThemeOwnership(EntityId shopId, Theme theme) {

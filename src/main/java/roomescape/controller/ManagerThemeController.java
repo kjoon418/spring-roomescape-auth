@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import roomescape.auth.RequireAuth;
-import roomescape.auth.Role;
-import roomescape.auth.UserId;
+import roomescape.auth.RequireManager;
 import roomescape.controller.dto.ThemeCreateRequest;
 import roomescape.controller.dto.ThemeResponse;
 import roomescape.controller.mapper.ThemeMapper;
@@ -21,8 +20,8 @@ import roomescape.service.ThemeService;
 import roomescape.service.dto.ThemeCreateCommand;
 
 @RestController
-@RequestMapping("/manager/shops/{shopId}/themes")
-@RequireAuth(roles = {Role.MANAGER})
+@RequestMapping("/manager/themes")
+@RequireManager
 @RequiredArgsConstructor
 public class ManagerThemeController {
 
@@ -31,23 +30,21 @@ public class ManagerThemeController {
 
     @PostMapping
     public ResponseEntity<ThemeResponse> create(
-            @UserId EntityId userId,
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @RequestBody ThemeCreateRequest createRequest
     ) {
         ThemeCreateCommand createCommand = mapper.mapToCommand(createRequest, EntityId.fromUuid(shopId));
-        ThemeResponse response = service.create(userId, createCommand);
+        ThemeResponse response = service.create(createCommand);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{themeId}")
     public ResponseEntity<Void> delete(
-            @UserId EntityId userId,
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @PathVariable UUID themeId
     ) {
-        service.delete(userId, EntityId.fromUuid(shopId), EntityId.fromUuid(themeId));
+        service.delete(EntityId.fromUuid(shopId), EntityId.fromUuid(themeId));
 
         return ResponseEntity.ok().build();
     }

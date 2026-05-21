@@ -2,13 +2,11 @@ package roomescape.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.auth.AuthorizationException;
-import roomescape.auth.Role;
 import roomescape.controller.dto.ReservationDetailResponse;
 import roomescape.controller.dto.ReservationSummaryResponse;
 import roomescape.domain.EntityId;
@@ -83,9 +81,6 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     @Transactional(readOnly = true)
     @Override
     public List<ReservationDetailResponse> findAllByShopId(EntityId managerId, EntityId shopId) {
-        User manager = findUserById(managerId);
-        validateManageAuthority(manager, shopId);
-
         List<Reservation> reservations = reservationRepository.findByShopId(shopId);
 
         return mapToDetailResponses(reservations);
@@ -112,10 +107,7 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
 
     @Transactional
     @Override
-    public void delete(EntityId managerId, EntityId shopId, EntityId reservationId) {
-        User manager = findUserById(managerId);
-        validateManageAuthority(manager, shopId);
-
+    public void delete(EntityId shopId, EntityId reservationId) {
         Reservation reservation = findReservationById(reservationId);
         validateReservationBelongsToShop(reservation, shopId);
 
@@ -221,16 +213,6 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     private void validateReservationBelongsToShop(Reservation reservation, EntityId shopId) {
         if (!shopId.equals(reservation.getShopId())) {
             throw new AuthorizationException("해당 매장의 예약이 아닙니다.");
-        }
-    }
-
-    private void validateManageAuthority(User manager, EntityId shopId) {
-        if (manager.role() != Role.MANAGER) {
-            throw new AuthorizationException("매니저가 아닙니다.");
-        }
-
-        if (!Objects.equals(manager.managingShopId(), shopId)) {
-            throw new AuthorizationException("해당 매장에 대한 관리 권한이 없습니다.");
         }
     }
 }

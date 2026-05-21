@@ -8,17 +8,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import roomescape.auth.RequireAuth;
-import roomescape.auth.Role;
+import roomescape.auth.RequireManager;
 import roomescape.auth.UserId;
 import roomescape.controller.dto.ReservationDetailResponse;
 import roomescape.domain.EntityId;
 import roomescape.service.ReservationService;
 
 @RestController
-@RequestMapping("/manager/shops/{shopId}/reservations")
-@RequireAuth(roles = {Role.MANAGER})
+@RequestMapping("/manager/reservations")
+@RequireManager
 @RequiredArgsConstructor
 public class ManagerReservationController {
 
@@ -26,24 +26,23 @@ public class ManagerReservationController {
 
     @GetMapping
     public ResponseEntity<List<ReservationDetailResponse>> findByShopId(
-            @UserId EntityId userId,
-            @PathVariable UUID shopId
+            @UserId EntityId managerId,
+            @RequestParam UUID shopId
     ) {
         List<ReservationDetailResponse> responses = service.findAllByShopId(
-                userId,
+                managerId,
                 EntityId.fromUuid(shopId)
         );
 
         return ResponseEntity.ok(responses);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> delete(
-            @UserId EntityId userId,
-            @PathVariable UUID shopId,
-            @PathVariable UUID id
+            @RequestParam UUID shopId,
+            @PathVariable UUID reservationId
     ) {
-        service.delete(userId, EntityId.fromUuid(shopId), EntityId.fromUuid(id));
+        service.delete(EntityId.fromUuid(shopId), EntityId.fromUuid(reservationId));
 
         return ResponseEntity.ok().build();
     }

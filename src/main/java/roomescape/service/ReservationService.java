@@ -17,7 +17,7 @@ public interface ReservationService {
 
     ReservationSummaryResponse update(ReservationUpdateCommand command);
 
-    void delete(EntityId managerId, EntityId shopId, EntityId reservationId);
+    void delete(EntityId shopId, EntityId reservationId);
 
     ReservationSummaryResponse cancel(EntityId shopId, EntityId reservationId);
 }

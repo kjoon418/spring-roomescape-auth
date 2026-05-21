@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.RequireAuth;
 import roomescape.auth.Role;
-import roomescape.auth.UserId;
 import roomescape.controller.dto.ThemeCreateRequest;
 import roomescape.controller.dto.ThemeResponse;
 import roomescape.controller.mapper.ThemeMapper;
@@ -31,23 +30,21 @@ public class AdminThemeController {
 
     @PostMapping
     public ResponseEntity<ThemeResponse> create(
-            @UserId EntityId userId,
             @PathVariable UUID shopId,
             @RequestBody ThemeCreateRequest createRequest
     ) {
         ThemeCreateCommand createCommand = mapper.mapToCommand(createRequest, EntityId.fromUuid(shopId));
-        ThemeResponse response = service.create(userId, createCommand);
+        ThemeResponse response = service.create(createCommand);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{themeId}")
     public ResponseEntity<Void> delete(
-            @UserId EntityId userId,
             @PathVariable UUID shopId,
             @PathVariable UUID themeId
     ) {
-        service.delete(userId, EntityId.fromUuid(shopId), EntityId.fromUuid(themeId));
+        service.delete(EntityId.fromUuid(shopId), EntityId.fromUuid(themeId));
 
         return ResponseEntity.ok().build();
     }
