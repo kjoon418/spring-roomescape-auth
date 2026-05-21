@@ -31,4 +31,19 @@ public class UserService {
                 user.role()
         );
     }
+
+    @Transactional(readOnly = true)
+    public UserResponse findById(EntityId userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorCode.USER_NOT_FOUND,
+                        "식별자로 회원을 조회할 수 없습니다."
+                                + " userId: " + userId
+                ));
+
+        return new UserResponse(
+                user.id(),
+                user.role()
+        );
+    }
 }
