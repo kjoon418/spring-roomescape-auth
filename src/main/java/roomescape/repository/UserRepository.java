@@ -61,6 +61,25 @@ public class UserRepository {
         }
     }
 
+    public boolean existsByUserIdAndShopId(
+            EntityId userId,
+            EntityId shopId
+    ) {
+        String countSql = "SELECT count(*)"
+                + " FROM users"
+                + " WHERE id = ? AND managing_shop_id = ?";
+
+        Integer count = jdbcTemplate.queryForObject(
+                countSql,
+                Integer.class,
+                userId.getValueAsUuid(),
+                shopId.getValueAsUuid()
+        );
+
+        return count != null
+                && count > 0;
+    }
+
     private RowMapper<User> userRowMapper() {
         return (resultSet, rowNum) -> new User(
                 readEntityId(resultSet, "id"),

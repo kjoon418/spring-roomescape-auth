@@ -13,6 +13,7 @@ public class AuthConfig implements WebMvcConfigurer {
 
     private final AuthenticationInterceptor authenticationInterceptor;
     private final AuthorizationInterceptor authorizationInterceptor;
+    private final ManagerValidateInterceptor managerValidateInterceptor;
 
     private final UserIdArgumentResolver userIdArgumentResolver;
 
@@ -21,6 +22,8 @@ public class AuthConfig implements WebMvcConfigurer {
         registry.addInterceptor(authenticationInterceptor)
                 .addPathPatterns("/**");
         registry.addInterceptor(authorizationInterceptor)
+                .addPathPatterns("/**");
+        registry.addInterceptor(managerValidateInterceptor)
                 .addPathPatterns("/**");
     }
 
