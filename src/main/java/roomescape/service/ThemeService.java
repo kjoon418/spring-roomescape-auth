@@ -39,7 +39,8 @@ public class ThemeService {
                 id,
                 command.name(),
                 command.description(),
-                command.imageUrl()
+                command.imageUrl(),
+                command.shopId()
         );
 
         Theme persisted = themeRepository.persist(theme);

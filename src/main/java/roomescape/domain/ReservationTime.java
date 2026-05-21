@@ -7,12 +7,14 @@ import roomescape.exception.InvalidDomainStateException;
 
 public record ReservationTime(
         EntityId id,
-        LocalTime startAt
+        LocalTime startAt,
+        EntityId shopId
 ) {
 
     public ReservationTime {
         validateId(id);
         validateStartAt(startAt);
+        validateShopId(shopId);
     }
 
     private void validateId(EntityId id) {
@@ -29,6 +31,15 @@ public record ReservationTime(
             throw new InvalidDomainStateException(
                     ErrorCode.INVALID_RESERVATION_TIME,
                     "예약 시간엔 시간 정보가 존재해야 합니다."
+            );
+        }
+    }
+
+    private void validateShopId(EntityId shopId) {
+        if (shopId == null) {
+            throw new InvalidDomainStateException(
+                    ErrorCode.INVALID_RESERVATION_TIME,
+                    "예약 시간엔 샵이 존재해야 합니다."
             );
         }
     }

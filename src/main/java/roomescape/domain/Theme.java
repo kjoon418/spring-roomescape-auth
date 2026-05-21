@@ -9,7 +9,8 @@ public record Theme(
         EntityId id,
         String name,
         String description,
-        String imageUrl
+        String imageUrl,
+        EntityId shopId
 ) {
 
     public Theme {
@@ -17,6 +18,7 @@ public record Theme(
         validateName(name);
         validateDescription(description);
         validateImageUrl(imageUrl);
+        validateShopId(shopId);
     }
 
     private void validateId(EntityId id) {
@@ -51,6 +53,15 @@ public record Theme(
             throw new InvalidDomainStateException(
                     ErrorCode.INVALID_THEME,
                     "테마엔 이미지가 존재해야 합니다."
+            );
+        }
+    }
+
+    private void validateShopId(EntityId shopId) {
+        if (shopId == null) {
+            throw new InvalidDomainStateException(
+                    ErrorCode.INVALID_THEME,
+                    "테마엔 샵이 존재해야 합니다."
             );
         }
     }

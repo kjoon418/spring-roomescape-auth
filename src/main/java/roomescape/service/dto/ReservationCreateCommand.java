@@ -7,6 +7,7 @@ public record ReservationCreateCommand(
         LocalDate date,
         EntityId timeId,
         EntityId themeId,
-        EntityId userId
+        EntityId userId,
+        EntityId shopId
 ) {
 }

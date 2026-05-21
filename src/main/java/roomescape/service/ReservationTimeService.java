@@ -34,7 +34,7 @@ public class ReservationTimeService {
             ReservationTimeCreateCommand command
     ) {
         EntityId id = EntityId.random();
-        ReservationTime reservationTime = new ReservationTime(id, command.startAt());
+        ReservationTime reservationTime = new ReservationTime(id, command.startAt(), command.shopId());
 
         ReservationTime persisted = timeRepository.persist(reservationTime);
         return reservationTimeResponseMapper.map(persisted);

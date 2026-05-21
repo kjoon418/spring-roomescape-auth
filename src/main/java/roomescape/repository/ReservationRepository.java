@@ -30,7 +30,7 @@ public class ReservationRepository {
         this.jdbcTemplate = jdbcTemplate;
         this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("reservation")
-                .usingColumns("id", "date", "canceled", "time_id", "theme_id", "user_id");
+                .usingColumns("id", "date", "canceled", "time_id", "theme_id", "user_id", "shop_id");
     }
 
     public Reservation persist(Reservation reservation) {
@@ -44,14 +44,15 @@ public class ReservationRepository {
                 "canceled", reservation.isCanceled(),
                 "time_id", timeId.getValueAsUuid(),
                 "theme_id", themeId.getValueAsUuid(),
-                "user_id", userId.getValueAsUuid()
+                "user_id", userId.getValueAsUuid(),
+                "shop_id", reservation.getShopId().getValueAsUuid()
         ));
 
         return reservation;
     }
 
     public List<Reservation> findAll() {
-        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id";
 
@@ -222,7 +223,8 @@ public class ReservationRepository {
         return (resultSet, rowNum) -> {
             EntityId timeId = readEntityId(resultSet, "time_id");
             LocalTime startAt = resultSet.getObject("start_at", LocalTime.class);
-            ReservationTime time = new ReservationTime(timeId, startAt);
+            EntityId timeShopId = readEntityId(resultSet, "time_shop_id");
+            ReservationTime time = new ReservationTime(timeId, startAt, timeShopId);
 
             return Reservation.retrieve(
                     readEntityId(resultSet, "id"),
@@ -230,7 +232,8 @@ public class ReservationRepository {
                     resultSet.getBoolean("canceled"),
                     time,
                     readEntityId(resultSet, "theme_id"),
-                    readEntityId(resultSet, "user_id")
+                    readEntityId(resultSet, "user_id"),
+                    readEntityId(resultSet, "shop_id")
             );
         };
     }

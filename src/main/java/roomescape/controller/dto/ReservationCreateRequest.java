@@ -6,6 +6,7 @@ import java.util.UUID;
 public record ReservationCreateRequest(
         LocalDate date,
         UUID timeId,
-        UUID themeId
+        UUID themeId,
+        UUID shopId
 ) {
 }

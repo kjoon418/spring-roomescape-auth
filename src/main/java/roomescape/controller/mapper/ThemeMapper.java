@@ -2,6 +2,7 @@ package roomescape.controller.mapper;
 
 import org.springframework.stereotype.Component;
 import roomescape.controller.dto.ThemeCreateRequest;
+import roomescape.domain.EntityId;
 import roomescape.service.dto.ThemeCreateCommand;
 
 @Component
@@ -13,7 +14,8 @@ public class ThemeMapper {
         return new ThemeCreateCommand(
                 request.name(),
                 request.description(),
-                request.imageUrl()
+                request.imageUrl(),
+                EntityId.fromUuid(request.shopId())
         );
     }
 }

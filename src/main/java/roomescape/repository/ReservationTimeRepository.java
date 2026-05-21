@@ -30,14 +30,15 @@ public class ReservationTimeRepository {
     public ReservationTime persist(ReservationTime reservationTime) {
         simpleJdbcInsert.execute(Map.of(
                 "id", reservationTime.id().getValueAsUuid(),
-                "start_at", reservationTime.startAt()
+                "start_at", reservationTime.startAt(),
+                "shop_id", reservationTime.shopId().getValueAsUuid()
         ));
 
         return reservationTime;
     }
 
     public List<ReservationTime> findAll() {
-        String findSql = "SELECT *"
+        String findSql = "SELECT id, start_at, shop_id"
                 + " FROM reservation_time";
 
         return jdbcTemplate.query(findSql, reservationTimeRowMapper());
@@ -45,7 +46,7 @@ public class ReservationTimeRepository {
 
     public Optional<ReservationTime> findById(EntityId id) {
         try {
-            String findSql = "SELECT id, start_at"
+            String findSql = "SELECT id, start_at, shop_id"
                     + " FROM reservation_time"
                     + " WHERE id = ?";
 
@@ -76,8 +77,9 @@ public class ReservationTimeRepository {
         return (resultSet, rowNum) -> {
             EntityId id = readEntityId(resultSet, "id");
             LocalTime startAt = resultSet.getObject("start_at", LocalTime.class);
+            EntityId shopId = readEntityId(resultSet, "shop_id");
 
-            return new ReservationTime(id, startAt);
+            return new ReservationTime(id, startAt, shopId);
         };
     }
 

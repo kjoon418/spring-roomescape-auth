@@ -18,7 +18,8 @@ public class ReservationMapper {
                 request.date(),
                 EntityId.fromUuid(request.timeId()),
                 EntityId.fromUuid(request.themeId()),
-                userId
+                userId,
+                EntityId.fromUuid(request.shopId())
         );
     }
 

@@ -52,7 +52,8 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
                 command.date(),
                 time,
                 command.themeId(),
-                command.userId()
+                command.userId(),
+                command.shopId()
         );
 
         Reservation persisted = reservationRepository.persist(reservation);

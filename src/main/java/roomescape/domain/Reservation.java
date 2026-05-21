@@ -19,6 +19,7 @@ public class Reservation {
     private final ReservationTime time;
     private final EntityId themeId;
     private final EntityId userId;
+    private final EntityId shopId;
 
     private Reservation(
             EntityId id,
@@ -26,12 +27,14 @@ public class Reservation {
             boolean canceled,
             ReservationTime time,
             EntityId themeId,
-            EntityId userId
+            EntityId userId,
+            EntityId shopId
     ) {
         validateId(id);
         validateDate(date);
         validateTime(time);
         validateTheme(themeId);
+        validateShopId(shopId);
 
         this.id = id;
         this.date = date;
@@ -39,6 +42,7 @@ public class Reservation {
         this.time = time;
         this.themeId = themeId;
         this.userId = userId;
+        this.shopId = shopId;
     }
 
     public static Reservation create(
@@ -46,7 +50,8 @@ public class Reservation {
             LocalDate date,
             ReservationTime time,
             EntityId themeId,
-            EntityId userId
+            EntityId userId,
+            EntityId shopId
     ) {
         validateFuture(date, time);
 
@@ -58,7 +63,8 @@ public class Reservation {
                 defaultCanceled,
                 time,
                 themeId,
-                userId
+                userId,
+                shopId
         );
     }
 
@@ -68,7 +74,8 @@ public class Reservation {
             boolean canceled,
             ReservationTime time,
             EntityId themeId,
-            EntityId userId
+            EntityId userId,
+            EntityId shopId
     ) {
         return new Reservation(
                 id,
@@ -76,7 +83,8 @@ public class Reservation {
                 canceled,
                 time,
                 themeId,
-                userId
+                userId,
+                shopId
         );
     }
 
@@ -94,7 +102,8 @@ public class Reservation {
                 this.canceled,
                 time,
                 this.themeId,
-                this.userId
+                this.userId,
+                this.shopId
         );
     }
 
@@ -107,7 +116,8 @@ public class Reservation {
                 canceled,
                 this.time,
                 this.themeId,
-                this.userId
+                this.userId,
+                this.shopId
         );
     }
 
@@ -173,6 +183,15 @@ public class Reservation {
             throw new InvalidDomainStateException(
                     ErrorCode.INVALID_RESERVATION,
                     "예약엔 테마가 존재해야 합니다."
+            );
+        }
+    }
+
+    private void validateShopId(EntityId shopId) {
+        if (shopId == null) {
+            throw new InvalidDomainStateException(
+                    ErrorCode.INVALID_RESERVATION,
+                    "예약엔 샵이 존재해야 합니다."
             );
         }
     }

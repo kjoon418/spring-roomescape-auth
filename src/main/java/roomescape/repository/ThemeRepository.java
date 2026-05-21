@@ -35,14 +35,15 @@ public class ThemeRepository {
                 "id", theme.id().getValueAsUuid(),
                 "name", theme.name(),
                 "description", theme.description(),
-                "image_url", theme.imageUrl()
+                "image_url", theme.imageUrl(),
+                "shop_id", theme.shopId().getValueAsUuid()
         ));
 
         return theme;
     }
 
     public List<Theme> findAll() {
-        String findSql = "SELECT id, name, description, image_url"
+        String findSql = "SELECT id, name, description, image_url, shop_id"
                 + " FROM theme";
 
         return namedParameterJdbcTemplate.query(findSql, themeRowMapper());
@@ -50,7 +51,7 @@ public class ThemeRepository {
 
     public Optional<Theme> findById(EntityId id) {
         try {
-            String findSql = "SELECT id, name, description, image_url"
+            String findSql = "SELECT id, name, description, image_url, shop_id"
                     + " FROM theme"
                     + " WHERE id = :id";
 
@@ -70,7 +71,7 @@ public class ThemeRepository {
             return Map.of();
         }
 
-        String findSql = "SELECT id, name, description, image_url"
+        String findSql = "SELECT id, name, description, image_url, shop_id"
                 + " FROM theme"
                 + " WHERE id IN (:ids)";
         List<UUID> jdbcIds = ids.stream()
@@ -112,8 +113,9 @@ public class ThemeRepository {
             String name = resultSet.getString("name");
             String description = resultSet.getString("description");
             String imageUrl = resultSet.getString("image_url");
+            EntityId shopId = readEntityId(resultSet, "shop_id");
 
-            return new Theme(id, name, description, imageUrl);
+            return new Theme(id, name, description, imageUrl, shopId);
         };
     }
 
