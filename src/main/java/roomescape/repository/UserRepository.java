@@ -23,7 +23,7 @@ public class UserRepository {
 
     public Optional<User> findById(EntityId id) {
         try {
-            String findSql = "SELECT id, login_id, password, name, role"
+            String findSql = "SELECT id, login_id, password, name, role, managing_shop_id"
                     + " FROM users"
                     + " WHERE id = ?";
 
@@ -44,7 +44,7 @@ public class UserRepository {
             String password
     ) {
         try {
-            String findSql = "SELECT id, login_id, password, name, role"
+            String findSql = "SELECT id, login_id, password, name, role, managing_shop_id"
                     + " FROM users"
                     + " WHERE login_id = ? AND password = ?";
 
@@ -67,12 +67,18 @@ public class UserRepository {
                 resultSet.getString("login_id"),
                 resultSet.getString("password"),
                 resultSet.getString("name"),
-                Role.valueOf(resultSet.getString("role"))
+                Role.valueOf(resultSet.getString("role")),
+                readNullableEntityId(resultSet, "managing_shop_id")
         );
     }
 
     private EntityId readEntityId(ResultSet resultSet, String column) throws SQLException {
         UUID uuid = resultSet.getObject(column, UUID.class);
         return EntityId.fromUuid(uuid);
+    }
+
+    private EntityId readNullableEntityId(ResultSet resultSet, String column) throws SQLException {
+        UUID uuid = resultSet.getObject(column, UUID.class);
+        return uuid != null ? EntityId.fromUuid(uuid) : null;
     }
 }

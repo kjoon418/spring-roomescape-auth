@@ -7,6 +7,7 @@ public record User(
         String loginId,
         String password,
         String name,
-        Role role
+        Role role,
+        EntityId managingShopId
 ) {
 }

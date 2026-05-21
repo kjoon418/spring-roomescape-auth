@@ -1,11 +1,11 @@
 -- 로컬 실행용 초기 데이터
-INSERT INTO users (id, login_id, password, name, role)
-VALUES ('dddddddd-dddd-dddd-dddd-dddddddddd01', 'brown', 'password123', '브라운', 'ADMIN'),
-       ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'gump', 'password456', '검프', 'MEMBER'),
-       ('dddddddd-dddd-dddd-dddd-dddddddddd03', 'jason', 'password789', '제이슨', 'MEMBER');
+INSERT INTO shop (id, name)
+VALUES ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01', '브라운의 방탈출');
 
-INSERT INTO shop (id, name, manager_id)
-VALUES ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01', '브라운의 방탈출', 'dddddddd-dddd-dddd-dddd-dddddddddd01');
+INSERT INTO users (id, login_id, password, name, role, managing_shop_id)
+VALUES ('dddddddd-dddd-dddd-dddd-dddddddddd01', 'brown', 'password123', '브라운', 'MANAGER', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01'),
+       ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'gump', 'password456', '검프', 'MEMBER', NULL),
+       ('dddddddd-dddd-dddd-dddd-dddddddddd03', 'jason', 'password789', '제이슨', 'MEMBER', NULL);
 
 INSERT INTO reservation_time (id, start_at, shop_id)
 VALUES ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01', '10:00:00', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01'),

@@ -1,28 +1,28 @@
 DROP TABLE IF EXISTS reservation;
 DROP TABLE IF EXISTS reservation_time;
 DROP TABLE IF EXISTS theme;
-DROP TABLE IF EXISTS shop;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS shop;
 
-CREATE TABLE users
+CREATE TABLE shop
 (
-    id UUID NOT NULL,
-    name     VARCHAR(255)             NOT NULL,
-    login_id VARCHAR(255)             NOT NULL,
-    password VARCHAR(255)             NOT NULL,
-    role     ENUM ('MEMBER', 'ADMIN') NOT NULL,
+    id   UUID         NOT NULL,
+    name VARCHAR(255) NOT NULL,
 
     PRIMARY KEY (id)
 );
 
-CREATE TABLE shop
+CREATE TABLE users
 (
-    id         UUID         NOT NULL,
-    name       VARCHAR(255) NOT NULL,
-    manager_id UUID         NOT NULL,
+    id               UUID                              NOT NULL,
+    name             VARCHAR(255)                      NOT NULL,
+    login_id         VARCHAR(255)                      NOT NULL,
+    password         VARCHAR(255)                      NOT NULL,
+    role             ENUM ('MEMBER', 'MANAGER', 'ADMIN') NOT NULL,
+    managing_shop_id UUID                              NULL,
 
     PRIMARY KEY (id),
-    CONSTRAINT fk_shop_manager_id FOREIGN KEY (manager_id) REFERENCES users (id)
+    CONSTRAINT fk_users_managing_shop_id FOREIGN KEY (managing_shop_id) REFERENCES shop (id)
 );
 
 CREATE TABLE reservation_time

@@ -28,8 +28,7 @@ public class ShopRepository {
     public Shop persist(Shop shop) {
         simpleJdbcInsert.execute(Map.of(
                 "id", shop.id().getValueAsUuid(),
-                "name", shop.name(),
-                "manager_id", shop.managerId().getValueAsUuid()
+                "name", shop.name()
         ));
 
         return shop;
@@ -37,7 +36,7 @@ public class ShopRepository {
 
     public Optional<Shop> findById(EntityId id) {
         try {
-            String findSql = "SELECT id, name, manager_id"
+            String findSql = "SELECT id, name"
                     + " FROM shop"
                     + " WHERE id = ?";
 
@@ -56,9 +55,8 @@ public class ShopRepository {
         return (resultSet, rowNum) -> {
             EntityId id = readEntityId(resultSet, "id");
             String name = resultSet.getString("name");
-            EntityId managerId = readEntityId(resultSet, "manager_id");
 
-            return new Shop(id, name, managerId);
+            return new Shop(id, name);
         };
     }
 

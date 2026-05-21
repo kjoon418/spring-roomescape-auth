@@ -7,21 +7,19 @@ import roomescape.exception.InvalidDomainStateException;
 
 public record Shop(
         EntityId id,
-        String name,
-        EntityId managerId
+        String name
 ) {
 
     public Shop {
         validateId(id);
         validateName(name);
-        validateManagerId(managerId);
     }
 
     private void validateId(EntityId id) {
         if (id == null) {
             throw new InvalidDomainStateException(
                     ErrorCode.INVALID_SHOP,
-                    "샵엔 식별자가 존재해야 합니다."
+                    "매장엔 식별자가 존재해야 합니다."
             );
         }
     }
@@ -30,16 +28,7 @@ public record Shop(
         if (!StringUtils.hasText(name)) {
             throw new InvalidDomainStateException(
                     ErrorCode.INVALID_SHOP,
-                    "샵엔 이름이 존재해야 합니다."
-            );
-        }
-    }
-
-    private void validateManagerId(EntityId managerId) {
-        if (managerId == null) {
-            throw new InvalidDomainStateException(
-                    ErrorCode.INVALID_SHOP,
-                    "샵엔 매니저가 존재해야 합니다."
+                    "매장엔 이름이 존재해야 합니다."
             );
         }
     }
