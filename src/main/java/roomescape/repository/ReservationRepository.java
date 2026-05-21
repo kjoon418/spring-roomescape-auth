@@ -51,17 +51,9 @@ public class ReservationRepository {
         return reservation;
     }
 
-    public List<Reservation> findAll() {
-        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
-                + " FROM reservation r"
-                + " JOIN reservation_time rt ON r.time_id = rt.id";
-
-        return jdbcTemplate.query(findSql, reservationRowMapper());
-    }
-
     public Optional<Reservation> findById(EntityId reservationId) {
         try {
-            String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
+            String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
                     + " FROM reservation r"
                     + " JOIN reservation_time rt ON r.time_id = rt.id"
                     + " WHERE r.id = ?";
@@ -79,7 +71,7 @@ public class ReservationRepository {
     }
 
     public List<Reservation> findByUserId(EntityId userId) {
-        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id"
                 + " WHERE r.user_id = ?";
@@ -91,22 +83,50 @@ public class ReservationRepository {
         );
     }
 
-    public List<Reservation> findBetweenDuration(Duration duration) {
-        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
+    public List<Reservation> findByShopId(EntityId shopId) {
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id"
-                + " WHERE r.date BETWEEN ? AND ?";
+                + " WHERE r.shop_id = ?";
 
         return jdbcTemplate.query(
                 findSql,
                 reservationRowMapper(),
+                shopId.getValueAsUuid()
+        );
+    }
+
+    public List<Reservation> findByUserIdAndShopId(EntityId userId, EntityId shopId) {
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
+                + " FROM reservation r"
+                + " JOIN reservation_time rt ON r.time_id = rt.id"
+                + " WHERE r.user_id = ? AND r.shop_id = ?";
+
+        return jdbcTemplate.query(
+                findSql,
+                reservationRowMapper(),
+                userId.getValueAsUuid(),
+                shopId.getValueAsUuid()
+        );
+    }
+
+    public List<Reservation> findBetweenDurationAndShopId(Duration duration, EntityId shopId) {
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
+                + " FROM reservation r"
+                + " JOIN reservation_time rt ON r.time_id = rt.id"
+                + " WHERE r.shop_id = ? AND r.date BETWEEN ? AND ?";
+
+        return jdbcTemplate.query(
+                findSql,
+                reservationRowMapper(),
+                shopId.getValueAsString(),
                 duration.startDate(),
                 duration.endDate()
         );
     }
 
     public List<Reservation> findNotCanceledByDateAndThemeId(LocalDate date, EntityId themeId) {
-        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, r.theme_id, r.user_id"
+        String findSql = "SELECT r.id, r.date, r.canceled, r.time_id, rt.start_at, rt.shop_id AS time_shop_id, r.theme_id, r.user_id, r.shop_id"
                 + " FROM reservation r"
                 + " JOIN reservation_time rt ON r.time_id = rt.id"
                 + " WHERE r.date = ? AND r.theme_id = ? AND r.canceled = false";

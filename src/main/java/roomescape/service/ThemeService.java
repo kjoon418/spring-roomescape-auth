@@ -39,11 +39,15 @@ public class ThemeService {
 
     @Transactional
     public ThemeResponse create(
-            EntityId managerId,
+            EntityId actorId,
             ThemeCreateCommand command
     ) {
-        User user = findUserById(managerId);
-        validateManageAuthority(user, command.shopId());
+        User actor = findUserById(actorId);
+        if (actor.role() == Role.MANAGER) {
+            validateManageAuthority(actor, command.shopId());
+        } else if (actor.role() != Role.ADMIN) {
+            throw new AuthorizationException("테마 생성 권한이 없습니다.");
+        }
 
         EntityId id = EntityId.random();
         Theme theme = new Theme(
@@ -72,7 +76,7 @@ public class ThemeService {
             long limit,
             Duration duration
     ) {
-        List<Reservation> reservations = reservationRepository.findBetweenDuration(duration);
+        List<Reservation> reservations = reservationRepository.findBetweenDurationAndShopId(duration, EntityId.fromUuid(shopId));
         Map<EntityId, Long> themeReservedCounts = collectCountByThemeId(reservations);
         Map<EntityId, Theme> themes = themeRepository.findByThemeIdsAndShopId(
                 themeReservedCounts.keySet(),
@@ -89,14 +93,19 @@ public class ThemeService {
 
     @Transactional
     public void delete(
-            EntityId managerId,
+            EntityId actorId,
             EntityId shopId,
             EntityId themeId
     ) {
-        User manager = findUserById(managerId);
-        validateManageAuthority(manager, shopId);
+        User actor = findUserById(actorId);
         Theme theme = findThemeById(themeId);
-        validateThemeOwnership(shopId, theme);
+
+        if (actor.role() == Role.MANAGER) {
+            validateManageAuthority(actor, shopId);
+            validateThemeOwnership(shopId, theme);
+        } else if (actor.role() != Role.ADMIN) {
+            throw new AuthorizationException("테마 삭제 권한이 없습니다.");
+        }
 
         validateThemeNotUsed(themeId);
 

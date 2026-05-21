@@ -6,6 +6,7 @@ import roomescape.domain.EntityId;
 public record ReservationUpdateCommand(
         EntityId reservationId,
         LocalDate date,
-        EntityId timeId
+        EntityId timeId,
+        EntityId shopId
 ) {
 }

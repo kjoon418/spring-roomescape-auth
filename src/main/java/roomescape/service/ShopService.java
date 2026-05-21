@@ -1,11 +1,13 @@
 package roomescape.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.auth.AuthorizationException;
 import roomescape.auth.Role;
 import roomescape.controller.dto.ManagedShopResponse;
+import roomescape.controller.dto.ShopResponse;
 import roomescape.domain.EntityId;
 import roomescape.domain.Shop;
 import roomescape.domain.User;
@@ -20,6 +22,13 @@ public class ShopService {
 
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
+
+    @Transactional(readOnly = true)
+    public List<ShopResponse> findAll() {
+        return shopRepository.findAll().stream()
+                .map(shop -> new ShopResponse(shop.id().getValueAsString(), shop.name()))
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public ManagedShopResponse findManagedShop(EntityId userId) {

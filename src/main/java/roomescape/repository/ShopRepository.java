@@ -2,7 +2,7 @@ package roomescape.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,13 +25,9 @@ public class ShopRepository {
                 .withTableName("shop");
     }
 
-    public Shop persist(Shop shop) {
-        simpleJdbcInsert.execute(Map.of(
-                "id", shop.id().getValueAsUuid(),
-                "name", shop.name()
-        ));
-
-        return shop;
+    public List<Shop> findAll() {
+        String findSql = "SELECT id, name FROM shop ORDER BY name";
+        return jdbcTemplate.query(findSql, shopRowMapper());
     }
 
     public Optional<Shop> findById(EntityId id) {

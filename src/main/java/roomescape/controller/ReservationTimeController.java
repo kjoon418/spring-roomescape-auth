@@ -17,7 +17,7 @@ import roomescape.service.ReservationTimeService;
 
 @RestController
 @RequestMapping("/times")
-@RequireAuth(roles = {Role.MEMBER, Role.ADMIN})
+@RequireAuth(roles = {Role.MEMBER, Role.MANAGER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ReservationTimeController {
 

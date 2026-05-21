@@ -27,7 +27,7 @@ import roomescape.service.dto.ReservationUpdateCommand;
 
 @RestController
 @RequestMapping("/shops/{shopId}/reservations")
-@RequireAuth(roles = {Role.MEMBER, Role.ADMIN})
+@RequireAuth(roles = {Role.MEMBER, Role.MANAGER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ReservationController {
 
@@ -52,9 +52,13 @@ public class ReservationController {
 
     @GetMapping
     public ResponseEntity<List<ReservationDetailResponse>> findByUserId(
-            @UserId EntityId userId
+            @UserId EntityId userId,
+            @PathVariable UUID shopId
     ) {
-        List<ReservationDetailResponse> responses = service.findAllIncludeDetail(userId);
+        List<ReservationDetailResponse> responses = service.findAllByUserIdAndShopId(
+                userId,
+                EntityId.fromUuid(shopId)
+        );
 
         return ResponseEntity.ok(responses);
     }
@@ -62,10 +66,12 @@ public class ReservationController {
     @PatchMapping("/{id}")
     public ResponseEntity<ReservationSummaryResponse> updateDateTime(
             @PathVariable UUID id,
+            @PathVariable UUID shopId,
             @RequestBody ReservationUpdateRequest updateRequest
     ) {
         ReservationUpdateCommand updateCommand = mapper.mapToUpdateCommand(
                 EntityId.fromUuid(id),
+                EntityId.fromUuid(shopId),
                 updateRequest
         );
         ReservationSummaryResponse response = service.update(updateCommand);

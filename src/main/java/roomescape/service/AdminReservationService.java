@@ -6,7 +6,7 @@ import roomescape.domain.EntityId;
 
 public interface AdminReservationService {
 
-    List<ReservationDetailResponse> findAllIncludeDetail();
+    List<ReservationDetailResponse> findAllIncludeDetailByShopId(EntityId shopId);
 
     void delete(EntityId reservationId);
 }

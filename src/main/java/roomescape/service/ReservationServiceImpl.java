@@ -41,6 +41,7 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     private final ReservationResponseMapper reservationResponseMapper;
 
     @Transactional
+    @Override
     public ReservationSummaryResponse create(
             ReservationCreateCommand command
     ) {
@@ -64,20 +65,34 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationDetailResponse> findAllIncludeDetail() {
-        List<Reservation> reservations = reservationRepository.findAll();
+    @Override
+    public List<ReservationDetailResponse> findAllIncludeDetailByShopId(EntityId shopId) {
+        List<Reservation> reservations = reservationRepository.findByShopId(shopId);
 
         return mapToDetailResponses(reservations);
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationDetailResponse> findAllIncludeDetail(EntityId userId) {
-        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+    @Override
+    public List<ReservationDetailResponse> findAllByUserIdAndShopId(EntityId userId, EntityId shopId) {
+        List<Reservation> reservations = reservationRepository.findByUserIdAndShopId(userId, shopId);
+
+        return mapToDetailResponses(reservations);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ReservationDetailResponse> findAllByShopId(EntityId managerId, EntityId shopId) {
+        User manager = findUserById(managerId);
+        validateManageAuthority(manager, shopId);
+
+        List<Reservation> reservations = reservationRepository.findByShopId(shopId);
 
         return mapToDetailResponses(reservations);
     }
 
     @Transactional
+    @Override
     public ReservationSummaryResponse update(
             ReservationUpdateCommand command
     ) {
@@ -96,6 +111,7 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional
+    @Override
     public void delete(EntityId managerId, EntityId shopId, EntityId reservationId) {
         User manager = findUserById(managerId);
         validateManageAuthority(manager, shopId);
@@ -113,6 +129,7 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional
+    @Override
     public void delete(EntityId reservationId) {
         boolean deleted = reservationRepository.delete(reservationId);
 
@@ -125,6 +142,7 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional
+    @Override
     public ReservationSummaryResponse cancel(EntityId shopId, EntityId reservationId) {
         Reservation reservation = findReservationById(reservationId);
         validateReservationBelongsToShop(reservation, shopId);

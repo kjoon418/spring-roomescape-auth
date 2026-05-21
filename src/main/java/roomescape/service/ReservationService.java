@@ -11,7 +11,9 @@ public interface ReservationService {
 
     ReservationSummaryResponse create(ReservationCreateCommand command);
 
-    List<ReservationDetailResponse> findAllIncludeDetail(EntityId userId);
+    List<ReservationDetailResponse> findAllByShopId(EntityId managerId, EntityId shopId);
+
+    List<ReservationDetailResponse> findAllByUserIdAndShopId(EntityId userId, EntityId shopId);
 
     ReservationSummaryResponse update(ReservationUpdateCommand command);
 

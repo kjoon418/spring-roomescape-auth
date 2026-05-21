@@ -33,6 +33,16 @@ public class WebViewController {
         return "admin/themes";
     }
 
+    @GetMapping("/manager")
+    public String managerHome() {
+        return "manager/dashboard";
+    }
+
+    @GetMapping("/manager/reservations")
+    public String managerReservations() {
+        return "manager/reservations";
+    }
+
     @GetMapping("/user")
     public String userHome() {
         return "user/home";

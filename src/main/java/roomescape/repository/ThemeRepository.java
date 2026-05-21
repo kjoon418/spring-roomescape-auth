@@ -42,13 +42,6 @@ public class ThemeRepository {
         return theme;
     }
 
-    public List<Theme> findAll() {
-        String findSql = "SELECT id, name, description, image_url, shop_id"
-                + " FROM theme";
-
-        return namedParameterJdbcTemplate.query(findSql, themeRowMapper());
-    }
-
     public List<Theme> findByShopId(EntityId shopId) {
         String findSql = "SELECT id, name, description, image_url, shop_id"
                 + " FROM theme"
@@ -94,7 +87,7 @@ public class ThemeRepository {
                 findSql,
                 Map.of(
                         "ids", jdbcIds,
-                        "shopId", shopId
+                        "shopId", shopId.getValueAsString()
                 ),
                 themeRowMapper()
         );

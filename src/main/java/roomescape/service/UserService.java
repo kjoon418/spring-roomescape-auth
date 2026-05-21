@@ -26,10 +26,7 @@ public class UserService {
                                 + " password: " + password
                 ));
 
-        return new UserResponse(
-                user.id(),
-                user.role()
-        );
+        return toResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -41,9 +38,13 @@ public class UserService {
                                 + " userId: " + userId
                 ));
 
-        return new UserResponse(
-                user.id(),
-                user.role()
-        );
+        return toResponse(user);
+    }
+
+    private UserResponse toResponse(User user) {
+        String managingShopId = user.managingShopId() != null
+                ? user.managingShopId().getValueAsString()
+                : null;
+        return new UserResponse(user.id(), user.role(), managingShopId);
     }
 }

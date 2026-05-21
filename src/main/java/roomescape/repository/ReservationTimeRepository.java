@@ -37,11 +37,13 @@ public class ReservationTimeRepository {
         return reservationTime;
     }
 
-    public List<ReservationTime> findAll() {
+    public List<ReservationTime> findByShopId(EntityId shopId) {
         String findSql = "SELECT id, start_at, shop_id"
-                + " FROM reservation_time";
+                + " FROM reservation_time"
+                + " WHERE shop_id = ?"
+                + " ORDER BY start_at";
 
-        return jdbcTemplate.query(findSql, reservationTimeRowMapper());
+        return jdbcTemplate.query(findSql, reservationTimeRowMapper(), shopId.getValueAsUuid());
     }
 
     public Optional<ReservationTime> findById(EntityId id) {

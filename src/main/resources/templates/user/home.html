@@ -11,24 +11,176 @@
 <header th:replace="~{fragments/site :: siteHeader}"></header>
 <main>
     <h1>사용자</h1>
-    <p class="lead">로그인 없이 이름만으로 예약합니다. 날짜·테마·시간을 고른 뒤 <code>POST /reservations</code>로 예약이 전송됩니다.</p>
-    <div class="card-grid">
+
+    <!-- 매장 선택 패널 (로그인하지 않았거나 매장 미선택 시 표시) -->
+    <div class="panel" id="shopSelectPanel" style="display:none;">
+        <h2>매장 선택</h2>
+        <p class="muted">이용할 매장을 선택하세요.</p>
+        <div id="shopList" class="card-grid"></div>
+        <p id="shopLoading" class="muted">매장 목록을 불러오는 중…</p>
+        <p id="shopEmpty" class="muted" style="display:none;">등록된 매장이 없습니다.</p>
+        <p id="shopErr" class="status-msg err" style="display:none;"></p>
+    </div>
+
+    <!-- 현재 선택된 매장 표시 -->
+    <div class="panel" id="selectedShopPanel" style="display:none;">
+        <h2>현재 매장</h2>
+        <p id="selectedShopName" class="lead"></p>
+        <button type="button" class="btn" id="changeShopBtn">매장 변경</button>
+    </div>
+
+    <!-- 사용자 기능 카드 (매장 선택 후 표시) -->
+    <div class="card-grid" id="featureCards" style="display:none;">
         <article class="card">
             <h2>예약하기</h2>
-            <p>관리자가 등록한 시간 중, 선택한 날짜와 테마에 아직 예약이 없는 시간만 선택할 수 있습니다.</p>
+            <p>선택한 매장에서 날짜·테마·시간을 골라 예약합니다.</p>
             <a class="btn btn-primary" th:href="@{/view/user/reserve}">예약 화면으로</a>
         </article>
         <article class="card">
             <h2>내 예약 보기</h2>
-            <p>이름으로 나의 예약 목록을 조회합니다. 각 예약은 취소 가능 여부를 함께 보여줍니다.</p>
+            <p>나의 예약 목록을 조회하고 변경하거나 취소합니다.</p>
             <a class="btn btn-primary" th:href="@{/view/user/reservations}">내 예약 확인</a>
         </article>
         <article class="card">
             <h2>인기 테마</h2>
-            <p>어제를 끝으로 최근 7일(게임 날짜) 예약 수가 많은 테마 상위 10개를 <code>/themes/most-reserved</code>로 조회합니다.</p>
+            <p>최근 7일 예약 수 기준으로 인기 테마 상위 10개를 확인합니다.</p>
             <a class="btn btn-primary" th:href="@{/view/user/popular}">인기 테마 보기</a>
         </article>
     </div>
 </main>
+<div th:replace="~{fragments/site :: errorModal}"></div>
+<script th:src="@{/js/common.js}"></script>
+<script>
+    // 로그인하지 않은 경우 웰컴 페이지로 이동
+    const user = getCurrentUser();
+    if (!user) {
+        location.href = '/view';
+    }
+
+    const shopSelectPanel = document.getElementById('shopSelectPanel');
+    const selectedShopPanel = document.getElementById('selectedShopPanel');
+    const selectedShopName = document.getElementById('selectedShopName');
+    const featureCards = document.getElementById('featureCards');
+    const changeShopBtn = document.getElementById('changeShopBtn');
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    async function loadShops() {
+        const shopLoading = document.getElementById('shopLoading');
+        const shopEmpty = document.getElementById('shopEmpty');
+        const shopErr = document.getElementById('shopErr');
+        const shopList = document.getElementById('shopList');
+
+        shopLoading.style.display = 'block';
+        shopEmpty.style.display = 'none';
+        shopErr.style.display = 'none';
+        shopList.innerHTML = '';
+
+        try {
+            const res = await fetch('/shops');
+            if (!res.ok) throw new Error('매장 목록을 불러오지 못했습니다.');
+            const shops = await res.json();
+            shopLoading.style.display = 'none';
+            if (!shops.length) {
+                shopEmpty.style.display = 'block';
+                return;
+            }
+            for (const shop of shops) {
+                const card = document.createElement('article');
+                card.className = 'card';
+                card.style.cursor = 'pointer';
+                card.innerHTML = `<h2>${escapeHtml(shop.name)}</h2><p>이 매장으로 이용합니다.</p>`;
+                card.addEventListener('click', () => selectShop(shop.id, shop.name));
+                shopList.appendChild(card);
+            }
+        } catch (e) {
+            shopLoading.style.display = 'none';
+            shopErr.textContent = e.message;
+            shopErr.style.display = 'block';
+        }
+    }
+
+    function selectShop(id, name) {
+        setSelectedShop(id, name);
+        showSelectedState({ id, name });
+    }
+
+    function showSelectedState(shop) {
+        shopSelectPanel.style.display = 'none';
+        selectedShopPanel.style.display = 'block';
+        selectedShopName.textContent = shop.name || `매장 ID: ${shop.id}`;
+        featureCards.style.display = 'grid';
+    }
+
+    function showShopSelector() {
+        shopSelectPanel.style.display = 'block';
+        selectedShopPanel.style.display = 'none';
+        featureCards.style.display = 'none';
+        loadShops();
+    }
+
+    changeShopBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('selectedShop');
+        showShopSelector();
+    });
+
+    // 초기화: 현재 상태 판단
+    async function init() {
+        if (!user) return; // 이미 위에서 리다이렉트됨
+
+        const role = user.role;
+
+        if (role === 'MANAGER') {
+            // 매니저는 자신의 매장이 자동 선택됨
+            const shopId = user.managingShopId;
+            if (!shopId) {
+                showErrorModal('관리 중인 매장이 없습니다. 관리자에게 문의하세요.');
+                return;
+            }
+            // 매장명 조회
+            let shopName = null;
+            try {
+                const res = await fetch('/shops/managed');
+                if (res.ok) {
+                    const data = await res.json();
+                    shopName = data.name;
+                }
+            } catch (_) {}
+
+            setSelectedShop(shopId, shopName || shopId);
+            showSelectedState({ id: shopId, name: shopName || '내 매장' });
+            return;
+        }
+
+        // MEMBER / ADMIN: 기존 선택 매장 확인
+        const selected = getSelectedShop();
+        if (selected && selected.id) {
+            // 매장명이 없으면 목록에서 조회
+            if (!selected.name) {
+                try {
+                    const res = await fetch('/shops');
+                    if (res.ok) {
+                        const shops = await res.json();
+                        const found = shops.find(s => s.id === selected.id);
+                        if (found) {
+                            setSelectedShop(found.id, found.name);
+                            showSelectedState(found);
+                            return;
+                        }
+                    }
+                } catch (_) {}
+            }
+            showSelectedState(selected);
+        } else {
+            showShopSelector();
+        }
+    }
+
+    init();
+</script>
 </body>
 </html>

@@ -26,12 +26,14 @@ public class ReservationMapper {
 
     public ReservationUpdateCommand mapToUpdateCommand(
             EntityId reservationId,
+            EntityId shopId,
             ReservationUpdateRequest request
     ) {
         return new ReservationUpdateCommand(
                 reservationId,
                 request.date(),
-                EntityId.fromUuid(request.timeId())
+                EntityId.fromUuid(request.timeId()),
+                shopId
         );
     }
 }

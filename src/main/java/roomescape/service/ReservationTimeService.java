@@ -12,11 +12,13 @@ import roomescape.controller.dto.ReservationTimeResponse;
 import roomescape.domain.EntityId;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
+import roomescape.domain.Theme;
 import roomescape.exception.EntityNotFoundException;
 import roomescape.exception.ErrorCode;
 import roomescape.exception.InUseEntityException;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
+import roomescape.repository.ThemeRepository;
 import roomescape.service.dto.ReservationTimeCreateCommand;
 import roomescape.service.mapper.ReservationTimeResponseMapper;
 
@@ -27,6 +29,7 @@ public class ReservationTimeService {
 
     private final ReservationTimeRepository timeRepository;
     private final ReservationRepository reservationRepository;
+    private final ThemeRepository themeRepository;
     private final ReservationTimeResponseMapper reservationTimeResponseMapper;
 
     @Transactional
@@ -41,8 +44,8 @@ public class ReservationTimeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationTimeResponse> findAll() {
-        return timeRepository.findAll()
+    public List<ReservationTimeResponse> findByShopId(EntityId shopId) {
+        return timeRepository.findByShopId(shopId)
                 .stream()
                 .map(reservationTimeResponseMapper::map)
                 .toList();
@@ -58,9 +61,15 @@ public class ReservationTimeService {
                 .map(Reservation::getTimeId)
                 .collect(Collectors.toUnmodifiableSet());
 
-        List<ReservationTime> allTimes = timeRepository.findAll();
+        // 테마의 매장에 속한 시간만 조회
+        Theme theme = themeRepository.findById(themeId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorCode.THEME_NOT_FOUND,
+                        "테마를 조회할 수 없습니다. themeId = " + themeId
+                ));
+        List<ReservationTime> shopTimes = timeRepository.findByShopId(theme.shopId());
 
-        return allTimes.stream()
+        return shopTimes.stream()
                 .filter(time -> Reservation.isAvailable(date, time))
                 .filter(time -> isNotUsedTime(time, usedTimeIds))
                 .map(reservationTimeResponseMapper::map)

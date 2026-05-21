@@ -21,10 +21,10 @@ import roomescape.service.ThemeService;
 import roomescape.service.dto.ThemeCreateCommand;
 
 @RestController
-@RequestMapping("/manager/shops/{shopId}/themes")
-@RequireAuth(roles = {Role.MANAGER})
+@RequestMapping("/admin/shops/{shopId}/themes")
+@RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
-public class ManagerThemeController {
+public class AdminThemeController {
 
     private final ThemeService service;
     private final ThemeMapper mapper;

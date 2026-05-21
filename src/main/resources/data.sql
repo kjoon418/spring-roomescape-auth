@@ -1,10 +1,11 @@
 -- 로컬 실행용 초기 데이터
 INSERT INTO shop (id, name)
-VALUES ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01', '브라운의 방탈출');
+VALUES ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01', '브라운의 방탈출'),
+       ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeee02', '제임스의 방탈출');
 
 INSERT INTO users (id, login_id, password, name, role, managing_shop_id)
 VALUES ('dddddddd-dddd-dddd-dddd-dddddddddd01', 'brown', 'password123', '브라운', 'MANAGER', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeee01'),
-       ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'gump', 'password456', '검프', 'MEMBER', NULL),
+       ('dddddddd-dddd-dddd-dddd-dddddddddd02', 'gump', 'password456', '검프', 'ADMIN', NULL),
        ('dddddddd-dddd-dddd-dddd-dddddddddd03', 'jason', 'password789', '제이슨', 'MEMBER', NULL);
 
 INSERT INTO reservation_time (id, start_at, shop_id)

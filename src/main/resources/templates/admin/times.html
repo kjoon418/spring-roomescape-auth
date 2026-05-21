@@ -12,9 +12,9 @@
 <main>
     <h1>예약 시간 관리</h1>
     <p class="muted"><a th:href="@{/view/admin}">← 관리자 홈</a></p>
+    <p class="muted" id="shopLabel"></p>
     <div class="panel">
         <h2>시간 추가</h2>
-        <p class="muted">API: <code>POST /admin/times</code> — 본문 <code>{"startAt": "10:00"}</code></p>
         <div class="form-row">
             <label>시작 시각 (HH:mm)
                 <input type="time" id="startAt" step="60" required/>
@@ -50,6 +50,12 @@
 <div th:replace="~{fragments/site :: errorModal}"></div>
 <script th:src="@{/js/common.js}"></script>
 <script>
+    const _shop = requireAdminShop();
+    if (!_shop) throw new Error('unreachable');
+    const SHOP_ID = _shop.id;
+
+    document.getElementById('shopLabel').textContent = '매장: ' + (_shop.name || SHOP_ID);
+
     const rows = document.getElementById('rows');
     const empty = document.getElementById('empty');
     const err = document.getElementById('err');
@@ -58,22 +64,10 @@
     const ERROR_MESSAGES = {
         BAD_REQUEST: '잘못된 요청입니다.',
         INVALID_INPUT: '입력값이 올바르지 않습니다.',
-        INVALID_REQUEST: '요청 형식이 올바르지 않습니다.',
-        INVALID_ID: 'ID 형식이 올바르지 않습니다.',
-        INVALID_DURATION: '조회 기간이 올바르지 않습니다. 시작일은 종료일보다 늦을 수 없습니다.',
-        INVALID_RESERVATION: '예약 정보가 올바르지 않습니다.',
         INVALID_RESERVATION_TIME: '예약 시간 정보가 올바르지 않습니다.',
-        INVALID_THEME: '테마 정보가 올바르지 않습니다.',
         TIME_IN_USE: '해당 시간은 예약에 사용 중이라 삭제할 수 없습니다.',
-        THEME_IN_USE: '해당 테마는 예약에 사용 중이라 삭제할 수 없습니다.',
-        DATA_INTEGRITY_VIOLATION: '데이터 처리 중 오류가 발생했습니다.',
-        PAST_RESERVATION: '지난 시간의 예약은 생성·변경·취소할 수 없습니다.',
-        NOT_RESERVATION_OWNER: '본인의 예약만 변경하거나 취소할 수 있습니다.',
-        RESERVATION_NOT_FOUND: '해당 예약을 찾을 수 없습니다.',
         RESERVATION_TIME_NOT_FOUND: '해당 예약 시간을 찾을 수 없습니다.',
-        THEME_NOT_FOUND: '해당 테마를 찾을 수 없습니다.',
-        DUPLICATE_RESERVATION: '이미 같은 날짜·시간·테마에 예약이 존재합니다.',
-        DATABASE_ERROR: '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+        DATABASE_ERROR: '데이터베이스 오류가 발생했습니다.',
         INTERNAL_SERVER_ERROR: '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
     };
 
@@ -98,7 +92,7 @@
     async function load() {
         err.style.display = 'none';
         try {
-            const res = await fetch('/admin/times');
+            const res = await fetch(`/admin/shops/${SHOP_ID}/times`);
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
             rows.innerHTML = '';
@@ -106,7 +100,7 @@
             for (const t of list) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${t.id}</td>
+                    <td style="font-size:0.8rem;">${t.id}</td>
                     <td>${t.startAt}</td>
                     <td><button type="button" class="btn btn-danger" data-id="${t.id}">삭제</button></td>`;
                 rows.appendChild(tr);
@@ -120,21 +114,18 @@
     }
 
     document.getElementById('addBtn').addEventListener('click', async () => {
-        const input = document.getElementById('startAt');
-        const v = input.value;
-        if (!v) {
-            showFormMsg('시간을 선택하세요.', false);
-            return;
-        }
+        const v = document.getElementById('startAt').value;
+        if (!v) { showFormMsg('시간을 선택하세요.', false); return; }
         formMsg.style.display = 'none';
         try {
-            const res = await fetch('/admin/times', {
+            const res = await fetch(`/admin/shops/${SHOP_ID}/times`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({startAt: v})
             });
             if (!res.ok) throw new Error(await readApiError(res));
             showFormMsg('추가되었습니다.', true);
+            document.getElementById('startAt').value = '';
             await load();
         } catch (e) {
             showFormMsg(e.message, false);
@@ -145,7 +136,7 @@
         if (!confirm('이 시간을 삭제할까요? (예약에 쓰이면 실패할 수 있습니다)')) return;
         err.style.display = 'none';
         try {
-            const res = await fetch('/times/' + id, {method: 'DELETE'});
+            const res = await fetch(`/admin/shops/${SHOP_ID}/times/${id}`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             await load();
         } catch (e) {
@@ -159,8 +150,10 @@
         const testErr = document.getElementById('testErr');
         testErr.style.display = 'none';
         try {
-            // 존재하지 않는 시간 ID로 삭제 시도 → RESERVATION_TIME_NOT_FOUND
-            const res = await fetch('/times/00000000-0000-0000-0000-000000000000', {method: 'DELETE'});
+            const res = await fetch(
+                `/admin/shops/${SHOP_ID}/times/00000000-0000-0000-0000-000000000000`,
+                {method: 'DELETE'}
+            );
             if (!res.ok) throw new Error(await readApiError(res));
             testErr.textContent = '성공 응답을 받았습니다.';
             testErr.className = 'status-msg ok';

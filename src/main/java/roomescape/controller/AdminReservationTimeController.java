@@ -21,7 +21,7 @@ import roomescape.service.ReservationTimeService;
 import roomescape.service.dto.ReservationTimeCreateCommand;
 
 @RestController
-@RequestMapping("/admin/times")
+@RequestMapping("/admin/shops/{shopId}/times")
 @RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
 public class AdminReservationTimeController {
@@ -31,17 +31,20 @@ public class AdminReservationTimeController {
 
     @PostMapping
     public ResponseEntity<ReservationTimeResponse> create(
+            @PathVariable UUID shopId,
             @RequestBody ReservationTimeCreateRequest createRequest
     ) {
-        ReservationTimeCreateCommand createCommand = mapper.mapToCommand(createRequest);
+        ReservationTimeCreateCommand createCommand = mapper.mapToCommand(createRequest, EntityId.fromUuid(shopId));
         ReservationTimeResponse response = service.create(createCommand);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservationTimeResponse>> findAll() {
-        List<ReservationTimeResponse> responses = service.findAll();
+    public ResponseEntity<List<ReservationTimeResponse>> findByShopId(
+            @PathVariable UUID shopId
+    ) {
+        List<ReservationTimeResponse> responses = service.findByShopId(EntityId.fromUuid(shopId));
 
         return ResponseEntity.ok(responses);
     }

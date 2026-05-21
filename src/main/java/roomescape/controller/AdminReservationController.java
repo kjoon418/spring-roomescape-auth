@@ -16,7 +16,7 @@ import roomescape.domain.EntityId;
 import roomescape.service.AdminReservationService;
 
 @RestController
-@RequestMapping("/admin/reservations")
+@RequestMapping("/admin/shops/{shopId}/reservations")
 @RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
 public class AdminReservationController {
@@ -24,8 +24,12 @@ public class AdminReservationController {
     private final AdminReservationService service;
 
     @GetMapping
-    public ResponseEntity<List<ReservationDetailResponse>> findAll() {
-        List<ReservationDetailResponse> responses = service.findAllIncludeDetail();
+    public ResponseEntity<List<ReservationDetailResponse>> findByShopId(
+            @PathVariable UUID shopId
+    ) {
+        List<ReservationDetailResponse> responses = service.findAllIncludeDetailByShopId(
+                EntityId.fromUuid(shopId)
+        );
 
         return ResponseEntity.ok(responses);
     }

@@ -4,14 +4,14 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="icon" href="data:,"/>
-    <title>관리자 — 예약</title>
+    <title>매니저 — 예약 관리</title>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
 </head>
 <body>
 <header th:replace="~{fragments/site :: siteHeader}"></header>
 <main>
-    <h1>예약 목록</h1>
-    <p class="muted"><a th:href="@{/view/admin}">← 관리자 홈</a></p>
+    <h1>예약 관리</h1>
+    <p class="muted"><a th:href="@{/view/manager}">← 매니저 홈</a></p>
     <p class="muted" id="shopLabel"></p>
     <div class="panel">
         <table>
@@ -31,30 +31,25 @@
         <p id="empty" class="muted" style="display:none;">등록된 예약이 없습니다.</p>
         <p id="err" class="status-msg err" style="display:none;"></p>
     </div>
-    <details class="dev-panel">
-        <summary>🧪 에러 응답 테스트</summary>
-        <p class="trigger-desc">존재하지 않는 UUID로 예약 삭제를 시도합니다. → <code>RESERVATION_NOT_FOUND</code></p>
-        <div class="form-row">
-            <button type="button" class="btn btn-test" id="triggerErrBtn">존재하지 않는 예약 삭제 시도</button>
-        </div>
-        <p id="testErr" class="status-msg" style="display:none;"></p>
-    </details>
 </main>
 <div th:replace="~{fragments/site :: errorModal}"></div>
 <script th:src="@{/js/common.js}"></script>
 <script>
-    const _shop = requireAdminShop();
-    if (!_shop) throw new Error('unreachable');
-    const SHOP_ID = _shop.id;
+    // MANAGER 전용 페이지
+    if (!requireRole('MANAGER')) {
+        throw new Error('unreachable');
+    }
 
-    document.getElementById('shopLabel').textContent = '매장: ' + (_shop.name || SHOP_ID);
+    const user = getCurrentUser();
+    const SHOP_ID = user.managingShopId;
 
-    const tbody = document.getElementById('rows');
-    const empty = document.getElementById('empty');
-    const err = document.getElementById('err');
+    if (!SHOP_ID) {
+        showErrorModal('관리 중인 매장이 없습니다.');
+    }
 
     const ERROR_MESSAGES = {
         BAD_REQUEST: '잘못된 요청입니다.',
+        INVALID_INPUT: '입력값이 올바르지 않습니다.',
         RESERVATION_NOT_FOUND: '해당 예약을 찾을 수 없습니다.',
         DATABASE_ERROR: '데이터베이스 오류가 발생했습니다.',
         INTERNAL_SERVER_ERROR: '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
@@ -77,13 +72,17 @@
         }[c]));
     }
 
+    const tbody = document.getElementById('rows');
+    const empty = document.getElementById('empty');
+    const err = document.getElementById('err');
+
     async function load() {
         err.style.display = 'none';
+        tbody.innerHTML = '';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/reservations`);
+            const res = await fetch(`/manager/shops/${SHOP_ID}/reservations`);
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
-            tbody.innerHTML = '';
             empty.style.display = list.length ? 'none' : 'block';
             for (const r of list) {
                 const tr = document.createElement('tr');
@@ -105,6 +104,12 @@
             tbody.querySelectorAll('button[data-id]').forEach(btn => {
                 btn.addEventListener('click', () => deleteReservation(btn.dataset.id));
             });
+
+            // 매장 라벨 업데이트
+            const shop = getSelectedShop();
+            if (shop && shop.name) {
+                document.getElementById('shopLabel').textContent = '매장: ' + shop.name;
+            }
         } catch (e) {
             showErrorModal(e.message);
         }
@@ -114,7 +119,7 @@
         if (!confirm('이 예약을 삭제할까요?')) return;
         err.style.display = 'none';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/reservations/${id}`, {method: 'DELETE'});
+            const res = await fetch(`/manager/shops/${SHOP_ID}/reservations/${id}`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             await load();
         } catch (e) {
@@ -123,23 +128,6 @@
     }
 
     load();
-
-    document.getElementById('triggerErrBtn').addEventListener('click', async () => {
-        const testErr = document.getElementById('testErr');
-        testErr.style.display = 'none';
-        try {
-            const res = await fetch(
-                `/admin/shops/${SHOP_ID}/reservations/00000000-0000-0000-0000-000000000000`,
-                {method: 'DELETE'}
-            );
-            if (!res.ok) throw new Error(await readApiError(res));
-            testErr.textContent = '성공 응답을 받았습니다.';
-            testErr.className = 'status-msg ok';
-            testErr.style.display = 'block';
-        } catch (e) {
-            showErrorModal(e.message);
-        }
-    });
 </script>
 </body>
 </html>

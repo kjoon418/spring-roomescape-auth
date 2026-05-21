@@ -63,6 +63,11 @@
 <div th:replace="~{fragments/site :: errorModal}"></div>
 <script th:src="@{/js/common.js}"></script>
 <script>
+    // 매장 미선택 시 홈으로
+    const _shop = requireShop();
+    if (!_shop) throw new Error('unreachable');
+    const SHOP_ID = _shop.id;
+
     const status = document.getElementById('status');
     const rows = document.getElementById('rows');
     const empty = document.getElementById('empty');
@@ -175,7 +180,7 @@
         if (!confirm('이 예약을 취소할까요?')) return;
         status.style.display = 'none';
         try {
-            const res = await fetch('/reservations/' + id, {method: 'DELETE'});
+            const res = await fetch(`/shops/${SHOP_ID}/reservations/${id}`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             showStatus('예약이 취소되었습니다.', true);
             await loadReservations();
@@ -281,7 +286,7 @@
         if (!confirm('예약 일정을 이대로 변경할까요?')) return;
         status.style.display = 'none';
         try {
-            const res = await fetch('/reservations/' + editing.id, {
+            const res = await fetch(`/shops/${SHOP_ID}/reservations/${editing.id}`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -304,7 +309,7 @@
         empty.style.display = 'none';
         closeEditPanel();
         try {
-            const res = await fetch('/reservations');
+            const res = await fetch(`/shops/${SHOP_ID}/reservations`);
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
             renderReservations(list);
@@ -318,7 +323,7 @@
         testErr.style.display = 'none';
         try {
             // 존재하지 않는 예약 ID로 삭제 시도 → RESERVATION_NOT_FOUND
-            const res = await fetch('/reservations/00000000-0000-0000-0000-000000000000', {method: 'DELETE'});
+            const res = await fetch(`/shops/${SHOP_ID}/reservations/00000000-0000-0000-0000-000000000000`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             testErr.textContent = '성공 응답을 받았습니다.';
             testErr.className = 'status-msg ok';

@@ -9,13 +9,14 @@ import roomescape.service.dto.ThemeCreateCommand;
 public class ThemeMapper {
 
     public ThemeCreateCommand mapToCommand(
-            ThemeCreateRequest request
+            ThemeCreateRequest request,
+            EntityId shopId
     ) {
         return new ThemeCreateCommand(
                 request.name(),
                 request.description(),
                 request.imageUrl(),
-                EntityId.fromUuid(request.shopId())
+                shopId
         );
     }
 }

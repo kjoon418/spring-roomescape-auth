@@ -9,11 +9,12 @@ import roomescape.service.dto.ReservationTimeCreateCommand;
 public class ReservationTimeMapper {
 
     public ReservationTimeCreateCommand mapToCommand(
-            ReservationTimeCreateRequest request
+            ReservationTimeCreateRequest request,
+            EntityId shopId
     ) {
         return new ReservationTimeCreateCommand(
                 request.startAt(),
-                EntityId.fromUuid(request.shopId())
+                shopId
         );
     }
 }
