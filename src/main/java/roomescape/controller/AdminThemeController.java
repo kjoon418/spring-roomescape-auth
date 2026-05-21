@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.RequireAuth;
 import roomescape.auth.Role;
@@ -20,7 +21,7 @@ import roomescape.service.ThemeService;
 import roomescape.service.dto.ThemeCreateCommand;
 
 @RestController
-@RequestMapping("/admin/shops/{shopId}/themes")
+@RequestMapping("/admin/themes")
 @RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
 public class AdminThemeController {
@@ -30,7 +31,7 @@ public class AdminThemeController {
 
     @PostMapping
     public ResponseEntity<ThemeResponse> create(
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @RequestBody ThemeCreateRequest createRequest
     ) {
         ThemeCreateCommand createCommand = mapper.mapToCommand(createRequest, EntityId.fromUuid(shopId));
@@ -41,7 +42,7 @@ public class AdminThemeController {
 
     @DeleteMapping("/{themeId}")
     public ResponseEntity<Void> delete(
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @PathVariable UUID themeId
     ) {
         service.delete(EntityId.fromUuid(shopId), EntityId.fromUuid(themeId));

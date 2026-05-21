@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.RequireAuth;
 import roomescape.auth.Role;
@@ -26,7 +27,7 @@ import roomescape.service.dto.ReservationCreateCommand;
 import roomescape.service.dto.ReservationUpdateCommand;
 
 @RestController
-@RequestMapping("/shops/{shopId}/reservations")
+@RequestMapping("/reservations")
 @RequireAuth(roles = {Role.MEMBER, Role.MANAGER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ReservationController {
@@ -37,7 +38,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationSummaryResponse> create(
             @UserId EntityId userId,
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @RequestBody ReservationCreateRequest createRequest
     ) {
         ReservationCreateCommand createCommand = mapper.mapToCreateCommand(
@@ -53,7 +54,7 @@ public class ReservationController {
     @GetMapping
     public ResponseEntity<List<ReservationDetailResponse>> findByUserId(
             @UserId EntityId userId,
-            @PathVariable UUID shopId
+            @RequestParam UUID shopId
     ) {
         List<ReservationDetailResponse> responses = service.findAllByUserIdAndShopId(
                 userId,
@@ -66,7 +67,7 @@ public class ReservationController {
     @PatchMapping("/{id}")
     public ResponseEntity<ReservationSummaryResponse> updateDateTime(
             @PathVariable UUID id,
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @RequestBody ReservationUpdateRequest updateRequest
     ) {
         ReservationUpdateCommand updateCommand = mapper.mapToUpdateCommand(
@@ -81,7 +82,7 @@ public class ReservationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ReservationSummaryResponse> cancel(
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @PathVariable UUID id
     ) {
         ReservationSummaryResponse response = service.cancel(

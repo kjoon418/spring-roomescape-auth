@@ -99,7 +99,7 @@
         const sd = localYmd(start);
         const ed = localYmd(end);
         rangeEl.textContent = `집계 구간(게임 날짜): ${sd} ~ ${ed}`;
-        const url = `/shops/${SHOP_ID}/themes/most-reserved?limit=10&startDate=${sd}&endDate=${ed}`;
+        const url = `/themes/most-reserved?shopId=${SHOP_ID}&limit=10&startDate=${sd}&endDate=${ed}`;
         err.style.display = 'none';
         try {
             const res = await fetch(url);
@@ -132,7 +132,7 @@
         testErr.style.display = 'none';
         try {
             // 시작일 > 종료일로 전달 → INVALID_DURATION
-            const res = await fetch(`/shops/${SHOP_ID}/themes/most-reserved?limit=10&startDate=2099-12-31&endDate=2099-01-01`);
+            const res = await fetch(`/themes/most-reserved?shopId=${SHOP_ID}&limit=10&startDate=2099-12-31&endDate=2099-01-01`);
             if (!res.ok) throw new Error(await readApiError(res));
             testErr.textContent = '성공 응답을 받았습니다.';
             testErr.className = 'status-msg ok';

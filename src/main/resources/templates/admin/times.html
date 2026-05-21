@@ -92,7 +92,7 @@
     async function load() {
         err.style.display = 'none';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/times`);
+            const res = await fetch(`/admin/times?shopId=${SHOP_ID}`);
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
             rows.innerHTML = '';
@@ -118,7 +118,7 @@
         if (!v) { showFormMsg('시간을 선택하세요.', false); return; }
         formMsg.style.display = 'none';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/times`, {
+            const res = await fetch(`/admin/times?shopId=${SHOP_ID}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({startAt: v})
@@ -136,7 +136,7 @@
         if (!confirm('이 시간을 삭제할까요? (예약에 쓰이면 실패할 수 있습니다)')) return;
         err.style.display = 'none';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/times/${id}`, {method: 'DELETE'});
+            const res = await fetch(`/admin/times/${id}?shopId=${SHOP_ID}`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             await load();
         } catch (e) {
@@ -151,7 +151,7 @@
         testErr.style.display = 'none';
         try {
             const res = await fetch(
-                `/admin/shops/${SHOP_ID}/times/00000000-0000-0000-0000-000000000000`,
+                `/admin/times/00000000-0000-0000-0000-000000000000?shopId=${SHOP_ID}`,
                 {method: 'DELETE'}
             );
             if (!res.ok) throw new Error(await readApiError(res));

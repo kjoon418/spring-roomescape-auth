@@ -80,7 +80,7 @@
         err.style.display = 'none';
         tbody.innerHTML = '';
         try {
-            const res = await fetch(`/manager/shops/${SHOP_ID}/reservations`);
+            const res = await fetch(`/manager/reservations?shopId=${SHOP_ID}`);
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
             empty.style.display = list.length ? 'none' : 'block';
@@ -119,7 +119,7 @@
         if (!confirm('이 예약을 삭제할까요?')) return;
         err.style.display = 'none';
         try {
-            const res = await fetch(`/manager/shops/${SHOP_ID}/reservations/${id}`, {method: 'DELETE'});
+            const res = await fetch(`/manager/reservations/${id}?shopId=${SHOP_ID}`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             await load();
         } catch (e) {

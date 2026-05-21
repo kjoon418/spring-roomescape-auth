@@ -6,7 +6,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +16,7 @@ import roomescape.repository.dto.ReservedTheme;
 import roomescape.service.ThemeService;
 
 @RestController
-@RequestMapping("/shops/{shopId}/themes")
+@RequestMapping("/themes")
 @NoRequireAuth
 @RequiredArgsConstructor
 public class ThemeController {
@@ -26,7 +25,7 @@ public class ThemeController {
 
     @GetMapping
     public ResponseEntity<List<ThemeResponse>> findAll(
-            @PathVariable UUID shopId
+            @RequestParam UUID shopId
     ) {
         List<ThemeResponse> responses = service.findByShopId(shopId);
 
@@ -35,7 +34,7 @@ public class ThemeController {
 
     @GetMapping("/most-reserved")
     public ResponseEntity<List<ReservedTheme>> findMostReserved(
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @RequestParam int limit,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate

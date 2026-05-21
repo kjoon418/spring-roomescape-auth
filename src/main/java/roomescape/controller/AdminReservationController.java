@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.RequireAuth;
 import roomescape.auth.Role;
@@ -16,7 +17,7 @@ import roomescape.domain.EntityId;
 import roomescape.service.AdminReservationService;
 
 @RestController
-@RequestMapping("/admin/shops/{shopId}/reservations")
+@RequestMapping("/admin/reservations")
 @RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
 public class AdminReservationController {
@@ -25,7 +26,7 @@ public class AdminReservationController {
 
     @GetMapping
     public ResponseEntity<List<ReservationDetailResponse>> findByShopId(
-            @PathVariable UUID shopId
+            @RequestParam UUID shopId
     ) {
         List<ReservationDetailResponse> responses = service.findAllIncludeDetailByShopId(
                 EntityId.fromUuid(shopId)

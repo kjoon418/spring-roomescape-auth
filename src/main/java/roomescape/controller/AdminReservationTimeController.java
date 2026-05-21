@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.RequireAuth;
 import roomescape.auth.Role;
@@ -21,7 +22,7 @@ import roomescape.service.ReservationTimeService;
 import roomescape.service.dto.ReservationTimeCreateCommand;
 
 @RestController
-@RequestMapping("/admin/shops/{shopId}/times")
+@RequestMapping("/admin/times")
 @RequireAuth(roles = {Role.ADMIN})
 @RequiredArgsConstructor
 public class AdminReservationTimeController {
@@ -31,7 +32,7 @@ public class AdminReservationTimeController {
 
     @PostMapping
     public ResponseEntity<ReservationTimeResponse> create(
-            @PathVariable UUID shopId,
+            @RequestParam UUID shopId,
             @RequestBody ReservationTimeCreateRequest createRequest
     ) {
         ReservationTimeCreateCommand createCommand = mapper.mapToCommand(createRequest, EntityId.fromUuid(shopId));
@@ -42,7 +43,7 @@ public class AdminReservationTimeController {
 
     @GetMapping
     public ResponseEntity<List<ReservationTimeResponse>> findByShopId(
-            @PathVariable UUID shopId
+            @RequestParam UUID shopId
     ) {
         List<ReservationTimeResponse> responses = service.findByShopId(EntityId.fromUuid(shopId));
 

@@ -213,7 +213,7 @@
             themeId: selectedThemeId
         };
         try {
-            const res = await fetch(`/shops/${SHOP_ID}/reservations`, {
+            const res = await fetch(`/reservations?shopId=${SHOP_ID}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(body)
@@ -231,7 +231,7 @@
         const today = new Date();
         gameDate.value = localYmd(today);
         try {
-            const tr = await fetch(`/shops/${SHOP_ID}/themes`);
+            const tr = await fetch(`/themes?shopId=${SHOP_ID}`);
             if (!tr.ok) throw new Error(await readApiError(tr));
             themes = await tr.json();
             renderThemes();
@@ -246,7 +246,7 @@
         testErr.style.display = 'none';
         try {
             // 존재하지 않는 timeId/themeId(모두 0 UUID)와 미래 날짜로 예약 시도 → RESERVATION_TIME_NOT_FOUND
-            const res = await fetch(`/shops/${SHOP_ID}/reservations`, {
+            const res = await fetch(`/reservations?shopId=${SHOP_ID}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({

@@ -80,7 +80,7 @@
     async function load() {
         err.style.display = 'none';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/reservations`);
+            const res = await fetch(`/admin/reservations?shopId=${SHOP_ID}`);
             if (!res.ok) throw new Error(await readApiError(res));
             const list = await res.json();
             tbody.innerHTML = '';
@@ -114,7 +114,7 @@
         if (!confirm('이 예약을 삭제할까요?')) return;
         err.style.display = 'none';
         try {
-            const res = await fetch(`/admin/shops/${SHOP_ID}/reservations/${id}`, {method: 'DELETE'});
+            const res = await fetch(`/admin/reservations/${id}?shopId=${SHOP_ID}`, {method: 'DELETE'});
             if (!res.ok) throw new Error(await readApiError(res));
             await load();
         } catch (e) {
@@ -129,7 +129,7 @@
         testErr.style.display = 'none';
         try {
             const res = await fetch(
-                `/admin/shops/${SHOP_ID}/reservations/00000000-0000-0000-0000-000000000000`,
+                `/admin/reservations/00000000-0000-0000-0000-000000000000?shopId=${SHOP_ID}`,
                 {method: 'DELETE'}
             );
             if (!res.ok) throw new Error(await readApiError(res));
