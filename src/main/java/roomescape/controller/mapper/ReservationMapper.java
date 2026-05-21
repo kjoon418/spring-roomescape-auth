@@ -12,14 +12,15 @@ public class ReservationMapper {
 
     public ReservationCreateCommand mapToCreateCommand(
             ReservationCreateRequest request,
-            EntityId userId
+            EntityId userId,
+            EntityId shopId
     ) {
         return new ReservationCreateCommand(
                 request.date(),
                 EntityId.fromUuid(request.timeId()),
                 EntityId.fromUuid(request.themeId()),
                 userId,
-                EntityId.fromUuid(request.shopId())
+                shopId
         );
     }
 

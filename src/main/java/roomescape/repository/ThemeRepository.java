@@ -49,6 +49,18 @@ public class ThemeRepository {
         return namedParameterJdbcTemplate.query(findSql, themeRowMapper());
     }
 
+    public List<Theme> findByShopId(EntityId shopId) {
+        String findSql = "SELECT id, name, description, image_url, shop_id"
+                + " FROM theme"
+                + " WHERE shop_id = :id";
+
+        return namedParameterJdbcTemplate.query(
+                findSql,
+                Map.of("id", shopId.getValueAsString()),
+                themeRowMapper()
+        );
+    }
+
     public Optional<Theme> findById(EntityId id) {
         try {
             String findSql = "SELECT id, name, description, image_url, shop_id"
@@ -66,21 +78,24 @@ public class ThemeRepository {
         }
     }
 
-    public Map<EntityId, Theme> findByIds(Collection<EntityId> ids) {
-        if (ids.isEmpty()) {
+    public Map<EntityId, Theme> findByThemeIdsAndShopId(Collection<EntityId> themeIds, EntityId shopId) {
+        if (themeIds.isEmpty()) {
             return Map.of();
         }
 
         String findSql = "SELECT id, name, description, image_url, shop_id"
                 + " FROM theme"
-                + " WHERE id IN (:ids)";
-        List<UUID> jdbcIds = ids.stream()
+                + " WHERE id IN (:ids) AND shop_id = (:shopId)";
+        List<UUID> jdbcIds = themeIds.stream()
                 .map(EntityId::getValueAsUuid)
                 .toList();
 
         List<Theme> themes = namedParameterJdbcTemplate.query(
                 findSql,
-                Map.of("ids", jdbcIds),
+                Map.of(
+                        "ids", jdbcIds,
+                        "shopId", shopId
+                ),
                 themeRowMapper()
         );
 

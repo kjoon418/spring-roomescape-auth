@@ -26,7 +26,7 @@ import roomescape.service.dto.ReservationCreateCommand;
 import roomescape.service.dto.ReservationUpdateCommand;
 
 @RestController
-@RequestMapping("/reservations")
+@RequestMapping("/shops/{shopId}/reservations")
 @RequireAuth(roles = {Role.MEMBER, Role.ADMIN})
 @RequiredArgsConstructor
 public class ReservationController {
@@ -37,9 +37,14 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationSummaryResponse> create(
             @UserId EntityId userId,
+            @PathVariable UUID shopId,
             @RequestBody ReservationCreateRequest createRequest
     ) {
-        ReservationCreateCommand createCommand = mapper.mapToCreateCommand(createRequest, userId);
+        ReservationCreateCommand createCommand = mapper.mapToCreateCommand(
+                createRequest,
+                userId,
+                EntityId.fromUuid(shopId)
+        );
         ReservationSummaryResponse response = service.create(createCommand);
 
         return ResponseEntity.ok(response);
@@ -70,9 +75,13 @@ public class ReservationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ReservationSummaryResponse> cancel(
+            @PathVariable UUID shopId,
             @PathVariable UUID id
     ) {
-        ReservationSummaryResponse response = service.cancel(EntityId.fromUuid(id));
+        ReservationSummaryResponse response = service.cancel(
+                EntityId.fromUuid(shopId),
+                EntityId.fromUuid(id)
+        );
 
         return ResponseEntity.ok(response);
     }

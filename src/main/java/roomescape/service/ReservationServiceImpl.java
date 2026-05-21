@@ -2,10 +2,13 @@ package roomescape.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import roomescape.auth.AuthorizationException;
+import roomescape.auth.Role;
 import roomescape.controller.dto.ReservationDetailResponse;
 import roomescape.controller.dto.ReservationSummaryResponse;
 import roomescape.domain.EntityId;
@@ -16,7 +19,6 @@ import roomescape.domain.User;
 import roomescape.exception.DuplicateReservationException;
 import roomescape.exception.EntityNotFoundException;
 import roomescape.exception.ErrorCode;
-import roomescape.exception.NotAcceptableReservationException;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
@@ -94,6 +96,23 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional
+    public void delete(EntityId managerId, EntityId shopId, EntityId reservationId) {
+        User manager = findUserById(managerId);
+        validateManageAuthority(manager, shopId);
+
+        Reservation reservation = findReservationById(reservationId);
+        validateReservationBelongsToShop(reservation, shopId);
+
+        boolean deleted = reservationRepository.delete(reservationId);
+        if (!deleted) {
+            throw new EntityNotFoundException(
+                    ErrorCode.RESERVATION_NOT_FOUND,
+                    "삭제할 예약을 조회하지 못했습니다. reservationId = " + reservationId
+            );
+        }
+    }
+
+    @Transactional
     public void delete(EntityId reservationId) {
         boolean deleted = reservationRepository.delete(reservationId);
 
@@ -106,8 +125,9 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
     }
 
     @Transactional
-    public ReservationSummaryResponse cancel(EntityId reservationId) {
+    public ReservationSummaryResponse cancel(EntityId shopId, EntityId reservationId) {
         Reservation reservation = findReservationById(reservationId);
+        validateReservationBelongsToShop(reservation, shopId);
 
         Reservation updatedReservation = reservationRepository.updateCanceled(reservation, true);
 
@@ -178,5 +198,21 @@ public class ReservationServiceImpl implements AdminReservationService, Reservat
                         ErrorCode.THEME_NOT_FOUND,
                         "테마를 조회할 수 없습니다. themeId = " + themeId
                 ));
+    }
+
+    private void validateReservationBelongsToShop(Reservation reservation, EntityId shopId) {
+        if (!shopId.equals(reservation.getShopId())) {
+            throw new AuthorizationException("해당 매장의 예약이 아닙니다.");
+        }
+    }
+
+    private void validateManageAuthority(User manager, EntityId shopId) {
+        if (manager.role() != Role.MANAGER) {
+            throw new AuthorizationException("매니저가 아닙니다.");
+        }
+
+        if (!Objects.equals(manager.managingShopId(), shopId)) {
+            throw new AuthorizationException("해당 매장에 대한 관리 권한이 없습니다.");
+        }
     }
 }
